@@ -17,7 +17,7 @@ type PostMongoDBStore struct {
 	products *mongo.Collection
 }
 
-func NewProductMongoDBStore(client *mongo.Client) domain.PostStore {
+func NewPostMongoDBStore(client *mongo.Client) domain.PostStore {
 	products := client.Database(DATABASE).Collection(COLLECTION)
 	return &PostMongoDBStore{
 		products: products,
