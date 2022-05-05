@@ -23,6 +23,6 @@ func (service *PostService) GetAll() ([]*domain.Post, error) {
 	return service.store.GetAll()
 }
 
-func (service *PostService) GetByUsername(username string) ([]*domain.Post, error) {
-	return service.store.GetByUsername(username)
+func (service *PostService) GetByUser(username string) ([]*domain.Post, error) {
+	return service.store.GetByUser(username)
 }

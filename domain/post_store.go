@@ -9,5 +9,5 @@ type PostStore interface {
 	GetAll() ([]*Post, error)
 	Insert(product *Post) error
 	DeleteAll()
-	GetByUsername(username string) ([]*Post, error)
+	GetByUser(username string) ([]*Post, error)
 }

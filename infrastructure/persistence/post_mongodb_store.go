@@ -47,7 +47,7 @@ func (store *PostMongoDBStore) DeleteAll() {
 	store.posts.DeleteMany(context.TODO(), bson.D{{}})
 }
 
-func (store *PostMongoDBStore) GetByUsername(username string) ([]*domain.Post, error) {
+func (store *PostMongoDBStore) GetByUser(username string) ([]*domain.Post, error) {
 	filter := bson.M{"username": username}
 	return store.filter(filter)
 }
