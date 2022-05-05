@@ -17,6 +17,11 @@ service PostService{
       get: "/post"
     };
   }
+  rpc GetByUser(GetByUserRequest) returns(GetAllResponse) {
+    option (google.api.http) = {
+      get: "/post/user/{username}"
+    };
+  }
 }
 
 message GetRequest {
@@ -32,6 +37,10 @@ message GetAllRequest {
 
 message GetAllResponse {
   repeated Post posts = 1;
+}
+
+message GetByUserRequest {
+  string username = 1;
 }
 
 message Post {
