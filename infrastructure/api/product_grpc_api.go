@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/application"
 	pb "github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/infrastructure/grpc/proto"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -67,7 +68,9 @@ func (handler *PostHandler) GetByUser(ctx context.Context, request *pb.GetByUser
 }
 
 func (handler *PostHandler) ReactToPost(ctx context.Context, request *pb.ReactionRequest) (*pb.ReactionResponse, error) {
-	reaction := mapReactionToDomain(request.Reaction)
+	fmt.Println(request.Reaction)
+	reaction := mapReactionToDomain((*request).Reaction)
+	fmt.Println(reaction)
 
 	reactorUsername, err := handler.service.ReactToPost(reaction)
 	if err != nil {

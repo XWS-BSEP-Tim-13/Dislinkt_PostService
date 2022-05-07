@@ -70,7 +70,7 @@ func (store *PostMongoDBStore) filterOne(filter interface{}) (product *domain.Po
 }
 
 func (store *PostMongoDBStore) UpdateReactions(post *domain.Post) (string, error) {
-	filter := bson.M{"_id": post.Id}
+	filter := bson.M{"_id": (*post).Id}
 	replacementObj := post
 	_, err := store.posts.ReplaceOne(context.TODO(), filter, replacementObj)
 

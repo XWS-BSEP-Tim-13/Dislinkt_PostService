@@ -25,6 +25,7 @@ service PostService{
   rpc ReactToPost(ReactionRequest) returns(ReactionResponse) {
     option (google.api.http) = {
       post: "/post/react"
+      body: "reaction"
     };
   }
 }

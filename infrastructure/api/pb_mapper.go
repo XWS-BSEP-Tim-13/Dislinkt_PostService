@@ -28,15 +28,15 @@ func mapPost(post *domain.Post) *pb.Post {
 }
 
 func mapReactionToDomain(reactionPb *pb.Reaction) *domain.Reaction {
-	postId, err := primitive.ObjectIDFromHex(reactionPb.PostId)
+	postId, err := primitive.ObjectIDFromHex((*reactionPb).PostId)
 	if err != nil {
 		return &domain.Reaction{}
 	}
 
 	reaction := &domain.Reaction{
-		Username:     reactionPb.Username,
+		Username:     (*reactionPb).Username,
 		PostId:       postId,
-		ReactionType: enum.ReactionType(reactionPb.ReactionType),
+		ReactionType: enum.ReactionType((*reactionPb).ReactionType),
 	}
 
 	return reaction

@@ -1,6 +1,7 @@
 package application
 
 import (
+	"fmt"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/domain"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/grpc/status"
@@ -38,14 +39,18 @@ func (service *PostService) ReactToPost(reaction *domain.Reaction) (string, erro
 	}
 
 	if (*reaction).ReactionType == 0 {
+		fmt.Println("This is like")
 		(*post).Likes = append((*post).Likes, (*reaction).Username)
+		fmt.Println("Liked")
 	} else if (*reaction).ReactionType == 1 {
+		fmt.Println("This is dislike")
 		(*post).Dislikes = append((*post).Dislikes, (*reaction).Username)
+		fmt.Println("Disliked")
 	} else {
 		return "", status.Error(400, "This reaction is not supported!")
 	}
 
-	reactorUsername, err := service.store.UpdateReactions(post)
+	reactorUsername, err := service.store.ReactToPost(post)
 	if err != nil {
 		return "", status.Error(500, "Error while updating post!")
 	}
