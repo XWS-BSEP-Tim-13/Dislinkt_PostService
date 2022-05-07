@@ -53,7 +53,7 @@ message ReactionRequest {
 }
 
 message ReactionResponse {
-  Reaction reaction = 1;
+  string username = 1;
 }
 
 message Reaction {
@@ -64,6 +64,8 @@ message Reaction {
     LIKE = 0;
     DISLIKE = 1;
   }
+
+  ReactionType reactionType = 3;
 }
 
 message Post {

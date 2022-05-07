@@ -2,6 +2,7 @@ package persistence
 
 import (
 	"context"
+	"fmt"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/domain"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -66,6 +67,18 @@ func (store *PostMongoDBStore) filterOne(filter interface{}) (product *domain.Po
 	result := store.posts.FindOne(context.TODO(), filter)
 	err = result.Decode(&product)
 	return
+}
+
+func (store *PostMongoDBStore) UpdateReactions(post *domain.Post) (string, error) {
+	filter := bson.M{"_id": post.Id}
+	replacementObj := post
+	_, err := store.posts.ReplaceOne(context.TODO(), filter, replacementObj)
+
+	fmt.Printf("Updated \n")
+	if err != nil {
+		return "", err
+	}
+	return (*post).Username, nil
 }
 
 func decode(cursor *mongo.Cursor) (products []*domain.Post, err error) {

@@ -65,3 +65,18 @@ func (handler *PostHandler) GetByUser(ctx context.Context, request *pb.GetByUser
 	}
 	return response, nil
 }
+
+func (handler *PostHandler) ReactToPost(ctx context.Context, request *pb.ReactionRequest) (*pb.ReactionResponse, error) {
+	reaction := mapReactionToDomain(request.Reaction)
+
+	reactorUsername, err := handler.service.ReactToPost(reaction)
+	if err != nil {
+		return nil, err
+	}
+
+	reactionResponse := &pb.ReactionResponse{
+		Username: reactorUsername,
+	}
+
+	return reactionResponse, nil
+}
