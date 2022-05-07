@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/domain"
+	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/domain/enum"
 	pb "github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/infrastructure/grpc/proto"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -60,4 +61,19 @@ func mapPostPbToDomain(postPb *pb.Post) *domain.Post {
 		})
 	}
 	return post
+}
+
+func mapReactionToDomain(reactionPb *pb.Reaction) *domain.Reaction {
+	postId, err := primitive.ObjectIDFromHex((*reactionPb).PostId)
+	if err != nil {
+		return &domain.Reaction{}
+	}
+
+	reaction := &domain.Reaction{
+		Username:     (*reactionPb).Username,
+		PostId:       postId,
+		ReactionType: enum.ReactionType((*reactionPb).ReactionType),
+	}
+
+	return reaction
 }

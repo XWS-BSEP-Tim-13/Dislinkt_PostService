@@ -14,7 +14,7 @@ type PostHandler struct {
 	service *application.PostService
 }
 
-func NewProductHandler(service *application.PostService) *PostHandler {
+func NewPostHandler(service *application.PostService) *PostHandler {
 	return &PostHandler{
 		service: service,
 	}
@@ -83,4 +83,21 @@ func (handler *PostHandler) CreatePost(ctx context.Context, request *pb.NewPost)
 	}
 
 	return response, nil
+}
+
+func (handler *PostHandler) ReactToPost(ctx context.Context, request *pb.ReactionRequest) (*pb.ReactionResponse, error) {
+	fmt.Println(request.Reaction)
+	reaction := mapReactionToDomain((*request).Reaction)
+	fmt.Println(reaction)
+
+	postId, err := handler.service.ReactToPost(reaction)
+	if err != nil {
+		return nil, err
+	}
+
+	reactionResponse := &pb.ReactionResponse{
+		PostId: postId,
+	}
+
+	return reactionResponse, nil
 }

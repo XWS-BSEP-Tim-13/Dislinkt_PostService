@@ -16,7 +16,6 @@ var posts = []*domain.Post{
 		Likes: []string{
 			"srdjansukovic",
 			"stefanljubovic",
-			"marijakljestan",
 		},
 		Dislikes: []string{},
 		Comments: []domain.Comment{
