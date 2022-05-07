@@ -14,13 +14,13 @@ const (
 )
 
 type PostMongoDBStore struct {
-	products *mongo.Collection
+	posts *mongo.Collection
 }
 
 func NewPostMongoDBStore(client *mongo.Client) domain.PostStore {
-	products := client.Database(DATABASE).Collection(COLLECTION)
+	posts := client.Database(DATABASE).Collection(COLLECTION)
 	return &PostMongoDBStore{
-		products: products,
+		posts: posts,
 	}
 }
 
@@ -35,7 +35,7 @@ func (store *PostMongoDBStore) GetAll() ([]*domain.Post, error) {
 }
 
 func (store *PostMongoDBStore) Insert(product *domain.Post) error {
-	result, err := store.products.InsertOne(context.TODO(), product)
+	result, err := store.posts.InsertOne(context.TODO(), product)
 	if err != nil {
 		return err
 	}
@@ -44,11 +44,16 @@ func (store *PostMongoDBStore) Insert(product *domain.Post) error {
 }
 
 func (store *PostMongoDBStore) DeleteAll() {
-	store.products.DeleteMany(context.TODO(), bson.D{{}})
+	store.posts.DeleteMany(context.TODO(), bson.D{{}})
+}
+
+func (store *PostMongoDBStore) GetByUser(username string) ([]*domain.Post, error) {
+	filter := bson.M{"username": username}
+	return store.filter(filter)
 }
 
 func (store *PostMongoDBStore) filter(filter interface{}) ([]*domain.Post, error) {
-	cursor, err := store.products.Find(context.TODO(), filter)
+	cursor, err := store.posts.Find(context.TODO(), filter)
 	defer cursor.Close(context.TODO())
 
 	if err != nil {
@@ -58,7 +63,7 @@ func (store *PostMongoDBStore) filter(filter interface{}) ([]*domain.Post, error
 }
 
 func (store *PostMongoDBStore) filterOne(filter interface{}) (product *domain.Post, err error) {
-	result := store.products.FindOne(context.TODO(), filter)
+	result := store.posts.FindOne(context.TODO(), filter)
 	err = result.Decode(&product)
 	return
 }

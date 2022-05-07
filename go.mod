@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0
-	go.mongodb.org/mongo-driver v1.8.4
+	go.mongodb.org/mongo-driver v1.9.1
 	google.golang.org/grpc v1.45.0
 )
 

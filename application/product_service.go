@@ -22,3 +22,7 @@ func (service *PostService) Get(id primitive.ObjectID) (*domain.Post, error) {
 func (service *PostService) GetAll() ([]*domain.Post, error) {
 	return service.store.GetAll()
 }
+
+func (service *PostService) GetByUser(username string) ([]*domain.Post, error) {
+	return service.store.GetByUser(username)
+}

@@ -101,8 +101,8 @@ func local_request_PostService_GetAll_0(ctx context.Context, marshaler runtime.M
 
 }
 
-func request_PostService_GetPostsByUser_0(ctx context.Context, marshaler runtime.Marshaler, client PostServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ByUserRequest
+func request_PostService_GetByUser_0(ctx context.Context, marshaler runtime.Marshaler, client PostServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetByUserRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -122,13 +122,13 @@ func request_PostService_GetPostsByUser_0(ctx context.Context, marshaler runtime
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "username", err)
 	}
 
-	msg, err := client.GetPostsByUser(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.GetByUser(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_PostService_GetPostsByUser_0(ctx context.Context, marshaler runtime.Marshaler, server PostServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ByUserRequest
+func local_request_PostService_GetByUser_0(ctx context.Context, marshaler runtime.Marshaler, server PostServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetByUserRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -148,7 +148,7 @@ func local_request_PostService_GetPostsByUser_0(ctx context.Context, marshaler r
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "username", err)
 	}
 
-	msg, err := server.GetPostsByUser(ctx, &protoReq)
+	msg, err := server.GetByUser(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -207,19 +207,19 @@ func RegisterPostServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 
 	})
 
-	mux.Handle("GET", pattern_PostService_GetPostsByUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_PostService_GetByUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/post.PostService/GetPostsByUser", runtime.WithHTTPPathPattern("/post/by-user/{username}"))
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/post.PostService/GetByUser", runtime.WithHTTPPathPattern("/post/user/{username}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_PostService_GetPostsByUser_0(ctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_PostService_GetByUser_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -227,7 +227,7 @@ func RegisterPostServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 			return
 		}
 
-		forward_PostService_GetPostsByUser_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_PostService_GetByUser_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -314,24 +314,24 @@ func RegisterPostServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 
 	})
 
-	mux.Handle("GET", pattern_PostService_GetPostsByUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_PostService_GetByUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/post.PostService/GetPostsByUser", runtime.WithHTTPPathPattern("/post/by-user/{username}"))
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/post.PostService/GetByUser", runtime.WithHTTPPathPattern("/post/user/{username}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_PostService_GetPostsByUser_0(ctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_PostService_GetByUser_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_PostService_GetPostsByUser_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_PostService_GetByUser_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -343,7 +343,7 @@ var (
 
 	pattern_PostService_GetAll_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"post"}, ""))
 
-	pattern_PostService_GetPostsByUser_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"post", "by-user", "username"}, ""))
+	pattern_PostService_GetByUser_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"post", "user", "username"}, ""))
 )
 
 var (
@@ -351,5 +351,5 @@ var (
 
 	forward_PostService_GetAll_0 = runtime.ForwardResponseMessage
 
-	forward_PostService_GetPostsByUser_0 = runtime.ForwardResponseMessage
+	forward_PostService_GetByUser_0 = runtime.ForwardResponseMessage
 )

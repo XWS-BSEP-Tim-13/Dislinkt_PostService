@@ -49,3 +49,19 @@ func (handler *PostHandler) GetAll(ctx context.Context, request *pb.GetAllReques
 	}
 	return response, nil
 }
+
+func (handler *PostHandler) GetByUser(ctx context.Context, request *pb.GetByUserRequest) (*pb.GetAllResponse, error) {
+	username := request.Username
+	posts, err := handler.service.GetByUser(username)
+	if err != nil {
+		return nil, err
+	}
+	response := &pb.GetAllResponse{
+		Posts: []*pb.Post{},
+	}
+	for _, post := range posts {
+		current := mapPost(post)
+		response.Posts = append(response.Posts, current)
+	}
+	return response, nil
+}
