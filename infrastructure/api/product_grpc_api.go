@@ -101,3 +101,21 @@ func (handler *PostHandler) ReactToPost(ctx context.Context, request *pb.Reactio
 
 	return reactionResponse, nil
 }
+
+func (handler *PostHandler) CreateCommentOnPost(ctx context.Context, request *pb.CommentRequest) (*pb.CommentResponse, error) {
+	fmt.Println((*request).Comment)
+	comment := mapCommentToDomain(request.Comment)
+	fmt.Println(comment)
+	postId := (*request).PostId
+
+	newComment, err := handler.service.CreateNewComment(comment, postId)
+	if err != nil {
+		return nil, status.Error(400, err.Error())
+	}
+
+	response := &pb.CommentResponse{
+		CommentId: newComment.Id.Hex(),
+	}
+
+	return response, nil
+}

@@ -77,3 +77,19 @@ func mapReactionToDomain(reactionPb *pb.Reaction) *domain.Reaction {
 
 	return reaction
 }
+
+func mapCommentToDomain(commentPb *pb.Comment) *domain.Comment {
+	commentId, err := primitive.ObjectIDFromHex((*commentPb).Id)
+	if err != nil {
+		return &domain.Comment{}
+	}
+
+	comment := &domain.Comment{
+		Id:       commentId,
+		Content:  (*commentPb).Content,
+		Username: (*commentPb).Username,
+		Date:     (*((*commentPb).Date)).AsTime(),
+	}
+
+	return comment
+}

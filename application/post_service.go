@@ -60,11 +60,6 @@ func (service *PostService) ReactToPost(reaction *domain.Reaction) (string, erro
 }
 
 func (service *PostService) CreateNewPost(post *domain.Post) (*domain.Post, error) {
-	//dbUser, _ := service.store.GetByUsername((*user).Username)
-	//if dbUser == nil {
-	//	err := errors.New("user with this username not exists")
-	//	return nil, err
-	//}
 	(*post).Id = primitive.NewObjectID()
 	err := service.store.Insert(post)
 	if err != nil {
@@ -73,4 +68,23 @@ func (service *PostService) CreateNewPost(post *domain.Post) (*domain.Post, erro
 	}
 
 	return post, nil
+}
+
+func (service *PostService) CreateNewComment(comment *domain.Comment, postId string) (*domain.Comment, error) {
+	(*comment).Id = primitive.NewObjectID()
+	id, err := primitive.ObjectIDFromHex(postId)
+	if err != nil {
+		return nil, err
+	}
+	post, err := service.store.Get(id)
+	if err != nil {
+		return nil, err
+	}
+	(*post).Comments = append((*post).Comments, *comment)
+	_, err = service.store.UpdateReactions(post)
+	if err != nil {
+		err := errors.New("error while creating new comment")
+		return nil, err
+	}
+	return comment, nil
 }

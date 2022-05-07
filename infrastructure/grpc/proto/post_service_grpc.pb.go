@@ -27,6 +27,7 @@ type PostServiceClient interface {
 	GetByUser(ctx context.Context, in *GetByUserRequest, opts ...grpc.CallOption) (*GetAllResponse, error)
 	CreatePost(ctx context.Context, in *NewPost, opts ...grpc.CallOption) (*NewPost, error)
 	ReactToPost(ctx context.Context, in *ReactionRequest, opts ...grpc.CallOption) (*ReactionResponse, error)
+	CreateCommentOnPost(ctx context.Context, in *CommentRequest, opts ...grpc.CallOption) (*CommentResponse, error)
 }
 
 type postServiceClient struct {
@@ -82,6 +83,15 @@ func (c *postServiceClient) ReactToPost(ctx context.Context, in *ReactionRequest
 	return out, nil
 }
 
+func (c *postServiceClient) CreateCommentOnPost(ctx context.Context, in *CommentRequest, opts ...grpc.CallOption) (*CommentResponse, error) {
+	out := new(CommentResponse)
+	err := c.cc.Invoke(ctx, "/post.PostService/CreateCommentOnPost", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PostServiceServer is the server API for PostService service.
 // All implementations must embed UnimplementedPostServiceServer
 // for forward compatibility
@@ -91,6 +101,7 @@ type PostServiceServer interface {
 	GetByUser(context.Context, *GetByUserRequest) (*GetAllResponse, error)
 	CreatePost(context.Context, *NewPost) (*NewPost, error)
 	ReactToPost(context.Context, *ReactionRequest) (*ReactionResponse, error)
+	CreateCommentOnPost(context.Context, *CommentRequest) (*CommentResponse, error)
 	mustEmbedUnimplementedPostServiceServer()
 }
 
@@ -112,6 +123,9 @@ func (UnimplementedPostServiceServer) CreatePost(context.Context, *NewPost) (*Ne
 }
 func (UnimplementedPostServiceServer) ReactToPost(context.Context, *ReactionRequest) (*ReactionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReactToPost not implemented")
+}
+func (UnimplementedPostServiceServer) CreateCommentOnPost(context.Context, *CommentRequest) (*CommentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateCommentOnPost not implemented")
 }
 func (UnimplementedPostServiceServer) mustEmbedUnimplementedPostServiceServer() {}
 
@@ -216,6 +230,24 @@ func _PostService_ReactToPost_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PostService_CreateCommentOnPost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CommentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PostServiceServer).CreateCommentOnPost(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/post.PostService/CreateCommentOnPost",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PostServiceServer).CreateCommentOnPost(ctx, req.(*CommentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PostService_ServiceDesc is the grpc.ServiceDesc for PostService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -242,6 +274,10 @@ var PostService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ReactToPost",
 			Handler:    _PostService_ReactToPost_Handler,
+		},
+		{
+			MethodName: "CreateCommentOnPost",
+			Handler:    _PostService_CreateCommentOnPost_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
