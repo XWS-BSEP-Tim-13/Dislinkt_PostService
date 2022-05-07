@@ -22,6 +22,11 @@ service PostService{
       get: "/post/user/{username}"
     };
   }
+  rpc ReactToPost(ReactionRequest) returns(ReactionResponse) {
+    option (google.api.http) = {
+      post: "/post/react"
+    };
+  }
 }
 
 message GetRequest {
@@ -41,6 +46,24 @@ message GetAllResponse {
 
 message GetByUserRequest {
   string username = 1;
+}
+
+message ReactionRequest {
+  Reaction reaction = 1;
+}
+
+message ReactionResponse {
+  Reaction reaction = 1;
+}
+
+message Reaction {
+  string username = 1;
+  string postId = 2;
+
+  enum ReactionType {
+    LIKE = 0;
+    DISLIKE = 1;
+  }
 }
 
 message Post {
