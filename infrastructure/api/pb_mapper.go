@@ -15,6 +15,7 @@ func mapPostToPb(post *domain.Post) *pb.Post {
 		Image:    post.Image,
 		Likes:    post.Likes,
 		Dislikes: post.Dislikes,
+		Date:     timestamppb.New(post.Date),
 	}
 	for _, comment := range post.Comments {
 		postPb.Comments = append(postPb.Comments, &pb.Comment{
