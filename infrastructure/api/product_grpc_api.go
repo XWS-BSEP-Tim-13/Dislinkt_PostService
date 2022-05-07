@@ -2,9 +2,11 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/application"
 	pb "github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/infrastructure/grpc/proto"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"google.golang.org/grpc/status"
 )
 
 type PostHandler struct {
@@ -28,7 +30,7 @@ func (handler *PostHandler) Get(ctx context.Context, request *pb.GetRequest) (*p
 	if err != nil {
 		return nil, err
 	}
-	postPb := mapPost(post)
+	postPb := mapPostToPb(post)
 	response := &pb.GetResponse{
 		Post: postPb,
 	}
@@ -44,7 +46,7 @@ func (handler *PostHandler) GetAll(ctx context.Context, request *pb.GetAllReques
 		Posts: []*pb.Post{},
 	}
 	for _, post := range posts {
-		current := mapPost(post)
+		current := mapPostToPb(post)
 		response.Posts = append(response.Posts, current)
 	}
 	return response, nil
@@ -60,8 +62,25 @@ func (handler *PostHandler) GetByUser(ctx context.Context, request *pb.GetByUser
 		Posts: []*pb.Post{},
 	}
 	for _, post := range posts {
-		current := mapPost(post)
+		current := mapPostToPb(post)
 		response.Posts = append(response.Posts, current)
 	}
+	return response, nil
+}
+
+func (handler *PostHandler) CreatePost(ctx context.Context, request *pb.NewPost) (*pb.NewPost, error) {
+	fmt.Println((*request).Post)
+	post := mapPostPbToDomain(request.Post)
+	fmt.Println(post)
+
+	newPost, err := handler.service.CreateNewPost(post)
+	if err != nil {
+		return nil, status.Error(400, err.Error())
+	}
+
+	response := &pb.NewPost{
+		Post: mapPostToPb(newPost),
+	}
+
 	return response, nil
 }

@@ -5,6 +5,7 @@ option go_package = "github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/infrastruct
 package post;
 
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 
 service PostService{
   rpc Get(GetRequest) returns(GetResponse) {
@@ -22,6 +23,16 @@ service PostService{
       get: "/post/user/{username}"
     };
   }
+  rpc CreatePost(NewPost) returns(NewPost) {
+    option(google.api.http) = {
+      post: "/post"
+      body: "post"
+    };
+  }
+}
+
+message NewPost {
+  Post post = 1;
 }
 
 message GetRequest {
@@ -51,11 +62,12 @@ message Post {
   repeated string likes = 5;
   repeated string dislikes = 6;
   repeated Comment comments = 7;
+  google.protobuf.Timestamp date = 8;
 }
 
 message Comment {
   string id = 1;
   string content = 2;
-  string date = 3;
+  google.protobuf.Timestamp date = 3;
   string username = 4;
 }

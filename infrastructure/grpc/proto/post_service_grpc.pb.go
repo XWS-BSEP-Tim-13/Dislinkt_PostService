@@ -25,6 +25,7 @@ type PostServiceClient interface {
 	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetResponse, error)
 	GetAll(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (*GetAllResponse, error)
 	GetByUser(ctx context.Context, in *GetByUserRequest, opts ...grpc.CallOption) (*GetAllResponse, error)
+	CreatePost(ctx context.Context, in *NewPost, opts ...grpc.CallOption) (*NewPost, error)
 }
 
 type postServiceClient struct {
@@ -62,6 +63,15 @@ func (c *postServiceClient) GetByUser(ctx context.Context, in *GetByUserRequest,
 	return out, nil
 }
 
+func (c *postServiceClient) CreatePost(ctx context.Context, in *NewPost, opts ...grpc.CallOption) (*NewPost, error) {
+	out := new(NewPost)
+	err := c.cc.Invoke(ctx, "/post.PostService/CreatePost", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PostServiceServer is the server API for PostService service.
 // All implementations must embed UnimplementedPostServiceServer
 // for forward compatibility
@@ -69,6 +79,7 @@ type PostServiceServer interface {
 	Get(context.Context, *GetRequest) (*GetResponse, error)
 	GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error)
 	GetByUser(context.Context, *GetByUserRequest) (*GetAllResponse, error)
+	CreatePost(context.Context, *NewPost) (*NewPost, error)
 	mustEmbedUnimplementedPostServiceServer()
 }
 
@@ -84,6 +95,9 @@ func (UnimplementedPostServiceServer) GetAll(context.Context, *GetAllRequest) (*
 }
 func (UnimplementedPostServiceServer) GetByUser(context.Context, *GetByUserRequest) (*GetAllResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetByUser not implemented")
+}
+func (UnimplementedPostServiceServer) CreatePost(context.Context, *NewPost) (*NewPost, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreatePost not implemented")
 }
 func (UnimplementedPostServiceServer) mustEmbedUnimplementedPostServiceServer() {}
 
@@ -152,6 +166,24 @@ func _PostService_GetByUser_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PostService_CreatePost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NewPost)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PostServiceServer).CreatePost(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/post.PostService/CreatePost",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PostServiceServer).CreatePost(ctx, req.(*NewPost))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PostService_ServiceDesc is the grpc.ServiceDesc for PostService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -170,6 +202,10 @@ var PostService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetByUser",
 			Handler:    _PostService_GetByUser_Handler,
+		},
+		{
+			MethodName: "CreatePost",
+			Handler:    _PostService_CreatePost_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

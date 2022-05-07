@@ -3,11 +3,13 @@ package startup
 import (
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/domain"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"time"
 )
 
 var posts = []*domain.Post{
 	{
 		Id:       getObjectId("623b0cc3a34d25d8567f9f82"),
+		Date:     time.Time{},
 		Username: "anagavrilovic",
 		Content:  "Mrzim Go!",
 		Image:    "",
@@ -21,7 +23,7 @@ var posts = []*domain.Post{
 			{
 				Id:       getObjectId("623b0cc3a34d25d8567f9f83"),
 				Content:  "I ja isto!",
-				Date:     "",
+				Date:     time.Time{},
 				Username: "srdjansukovic",
 			},
 		},
