@@ -78,7 +78,7 @@ func (store *PostMongoDBStore) UpdateReactions(post *domain.Post) (string, error
 	if err != nil {
 		return "", err
 	}
-	return (*post).Username, nil
+	return (*post).Id.Hex(), nil
 }
 
 func decode(cursor *mongo.Cursor) (products []*domain.Post, err error) {

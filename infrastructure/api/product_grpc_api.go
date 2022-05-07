@@ -72,13 +72,13 @@ func (handler *PostHandler) ReactToPost(ctx context.Context, request *pb.Reactio
 	reaction := mapReactionToDomain((*request).Reaction)
 	fmt.Println(reaction)
 
-	reactorUsername, err := handler.service.ReactToPost(reaction)
+	postId, err := handler.service.ReactToPost(reaction)
 	if err != nil {
 		return nil, err
 	}
 
 	reactionResponse := &pb.ReactionResponse{
-		Username: reactorUsername,
+		PostId: postId,
 	}
 
 	return reactionResponse, nil

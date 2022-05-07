@@ -54,7 +54,7 @@ message ReactionRequest {
 }
 
 message ReactionResponse {
-  string username = 1;
+  string postId = 1;
 }
 
 message Reaction {

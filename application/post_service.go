@@ -50,10 +50,10 @@ func (service *PostService) ReactToPost(reaction *domain.Reaction) (string, erro
 		return "", status.Error(400, "This reaction is not supported!")
 	}
 
-	reactorUsername, err := service.store.ReactToPost(post)
+	postID, err := service.store.UpdateReactions(post)
 	if err != nil {
 		return "", status.Error(500, "Error while updating post!")
 	}
 
-	return reactorUsername, nil
+	return postID, nil
 }
