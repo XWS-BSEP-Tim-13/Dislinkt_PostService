@@ -60,7 +60,7 @@ func (server *Server) initPostService(store domain.PostStore) *application.PostS
 }
 
 func (server *Server) initPostHandler(service *application.PostService) *api.PostHandler {
-	return api.NewProductHandler(service)
+	return api.NewPostHandler(service)
 }
 
 func (server *Server) startGrpcServer(postHandler *api.PostHandler) {
