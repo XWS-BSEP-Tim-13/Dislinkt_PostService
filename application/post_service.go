@@ -2,8 +2,8 @@ package application
 
 import (
 	"errors"
-	"fmt"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/domain"
+	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/util"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/grpc/status"
 )
@@ -40,13 +40,45 @@ func (service *PostService) ReactToPost(reaction *domain.Reaction) (string, erro
 	}
 
 	if (*reaction).ReactionType == 0 {
-		fmt.Println("This is like")
-		(*post).Likes = append((*post).Likes, (*reaction).Username)
-		fmt.Println("Liked")
+		foundInLikes := false
+		for idx, like := range (*post).Likes {
+			if like == (*reaction).Username {
+				(*post).Likes = util.RemoveElement((*post).Likes, idx)
+				foundInLikes = true
+				break
+			}
+		}
+
+		if !foundInLikes {
+			for idx, dislike := range (*post).Dislikes {
+				if dislike == (*reaction).Username {
+					(*post).Dislikes = util.RemoveElement((*post).Dislikes, idx)
+					break
+				}
+			}
+
+			(*post).Likes = append((*post).Likes, (*reaction).Username)
+		}
 	} else if (*reaction).ReactionType == 1 {
-		fmt.Println("This is dislike")
-		(*post).Dislikes = append((*post).Dislikes, (*reaction).Username)
-		fmt.Println("Disliked")
+		foundInDislikes := false
+		for idx, dislike := range (*post).Dislikes {
+			if dislike == (*reaction).Username {
+				(*post).Dislikes = util.RemoveElement((*post).Dislikes, idx)
+				foundInDislikes = true
+				break
+			}
+		}
+
+		if !foundInDislikes {
+			for idx, like := range (*post).Likes {
+				if like == (*reaction).Username {
+					(*post).Likes = util.RemoveElement((*post).Likes, idx)
+					break
+				}
+			}
+
+			(*post).Dislikes = append((*post).Dislikes, (*reaction).Username)
+		}
 	} else {
 		return "", status.Error(400, "This reaction is not supported!")
 	}
