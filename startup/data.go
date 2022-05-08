@@ -8,7 +8,7 @@ import (
 var posts = []*domain.Post{
 	{
 		Id:       getObjectId("623b0cc3a34d25d8567f9f82"),
-		Username: "anagavrilovic",
+		Username: "suki",
 		Content:  "Mrzim Go!",
 		Image:    "",
 		Likes: []string{
