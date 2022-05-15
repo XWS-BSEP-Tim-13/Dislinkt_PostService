@@ -1,11 +1,14 @@
 package domain
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"time"
+)
 
 type Comment struct {
 	Id       primitive.ObjectID `bson:"_id"`
 	Content  string             `bson:"content"`
-	Date     string             `bson:"date"`
+	Date     time.Time          `bson:"date"`
 	Username string             `bson:"username"`
 }
 
@@ -17,4 +20,5 @@ type Post struct {
 	Likes    []string           `bson:"likes"`
 	Dislikes []string           `bson:"dislikes"`
 	Comments []Comment          `bson:"comments"`
+	Date     time.Time          `bson:"date"`
 }
