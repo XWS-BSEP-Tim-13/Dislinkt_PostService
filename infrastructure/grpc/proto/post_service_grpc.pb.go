@@ -27,6 +27,7 @@ type PostServiceClient interface {
 	GetByUser(ctx context.Context, in *GetByUserRequest, opts ...grpc.CallOption) (*GetAllResponse, error)
 	CreatePost(ctx context.Context, in *NewPost, opts ...grpc.CallOption) (*NewPost, error)
 	ReactToPost(ctx context.Context, in *ReactionRequest, opts ...grpc.CallOption) (*ReactionResponse, error)
+	GetFeedPosts(ctx context.Context, in *FeedRequest, opts ...grpc.CallOption) (*FeedResponse, error)
 	CreateCommentOnPost(ctx context.Context, in *CommentRequest, opts ...grpc.CallOption) (*CommentResponse, error)
 }
 
@@ -83,6 +84,15 @@ func (c *postServiceClient) ReactToPost(ctx context.Context, in *ReactionRequest
 	return out, nil
 }
 
+func (c *postServiceClient) GetFeedPosts(ctx context.Context, in *FeedRequest, opts ...grpc.CallOption) (*FeedResponse, error) {
+	out := new(FeedResponse)
+	err := c.cc.Invoke(ctx, "/post.PostService/GetFeedPosts", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *postServiceClient) CreateCommentOnPost(ctx context.Context, in *CommentRequest, opts ...grpc.CallOption) (*CommentResponse, error) {
 	out := new(CommentResponse)
 	err := c.cc.Invoke(ctx, "/post.PostService/CreateCommentOnPost", in, out, opts...)
@@ -101,6 +111,7 @@ type PostServiceServer interface {
 	GetByUser(context.Context, *GetByUserRequest) (*GetAllResponse, error)
 	CreatePost(context.Context, *NewPost) (*NewPost, error)
 	ReactToPost(context.Context, *ReactionRequest) (*ReactionResponse, error)
+	GetFeedPosts(context.Context, *FeedRequest) (*FeedResponse, error)
 	CreateCommentOnPost(context.Context, *CommentRequest) (*CommentResponse, error)
 	mustEmbedUnimplementedPostServiceServer()
 }
@@ -123,6 +134,9 @@ func (UnimplementedPostServiceServer) CreatePost(context.Context, *NewPost) (*Ne
 }
 func (UnimplementedPostServiceServer) ReactToPost(context.Context, *ReactionRequest) (*ReactionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReactToPost not implemented")
+}
+func (UnimplementedPostServiceServer) GetFeedPosts(context.Context, *FeedRequest) (*FeedResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFeedPosts not implemented")
 }
 func (UnimplementedPostServiceServer) CreateCommentOnPost(context.Context, *CommentRequest) (*CommentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCommentOnPost not implemented")
@@ -230,6 +244,24 @@ func _PostService_ReactToPost_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PostService_GetFeedPosts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FeedRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PostServiceServer).GetFeedPosts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/post.PostService/GetFeedPosts",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PostServiceServer).GetFeedPosts(ctx, req.(*FeedRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _PostService_CreateCommentOnPost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CommentRequest)
 	if err := dec(in); err != nil {
@@ -274,6 +306,10 @@ var PostService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ReactToPost",
 			Handler:    _PostService_ReactToPost_Handler,
+		},
+		{
+			MethodName: "GetFeedPosts",
+			Handler:    _PostService_GetFeedPosts_Handler,
 		},
 		{
 			MethodName: "CreateCommentOnPost",

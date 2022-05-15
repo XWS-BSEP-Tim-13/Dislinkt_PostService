@@ -2,6 +2,7 @@ package application
 
 import (
 	"errors"
+	"fmt"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/domain"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/util"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -119,4 +120,13 @@ func (service *PostService) CreateNewComment(comment *domain.Comment, postId str
 		return nil, err
 	}
 	return comment, nil
+}
+
+func (service *PostService) GetFeedPosts(page int64, usernames []string) (*domain.FeedDto, error) {
+	dto, err := service.store.GetFeed(page, usernames)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("posts length: %d \n", len(dto.Posts))
+	return dto, err
 }

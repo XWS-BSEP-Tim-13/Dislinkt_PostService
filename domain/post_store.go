@@ -11,4 +11,5 @@ type PostStore interface {
 	DeleteAll()
 	GetByUser(username string) ([]*Post, error)
 	UpdateReactions(post *Post) (string, error)
+	GetFeed(page int64, usernames []string) (*FeedDto, error)
 }
