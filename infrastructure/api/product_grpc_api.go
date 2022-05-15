@@ -119,3 +119,23 @@ func (handler *PostHandler) CreateCommentOnPost(ctx context.Context, request *pb
 
 	return response, nil
 }
+
+func (handler *PostHandler) GetFeedPosts(ctx context.Context, request *pb.FeedRequest) (*pb.FeedResponse, error) {
+	fmt.Println("Posts microservice")
+	usernames := mapUsernamesToDomain(request.Usernames)
+	dto, err := handler.service.GetFeedPosts(request.Page, usernames)
+	if err != nil {
+		return nil, err
+	}
+	pbPosts := []*pb.Post{}
+	for _, post := range dto.Posts {
+		current := mapPostToPb(post)
+		pbPosts = append(pbPosts, current)
+	}
+	response := &pb.FeedResponse{
+		Posts:    pbPosts,
+		LastPage: dto.LastPage,
+		Page:     dto.Page,
+	}
+	return response, nil
+}

@@ -10,3 +10,9 @@ type Reaction struct {
 	Username     string
 	ReactionType enum.ReactionType
 }
+
+type FeedDto struct {
+	Posts    []*Post
+	Page     int64
+	LastPage int64
+}

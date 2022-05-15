@@ -29,6 +29,14 @@ func mapPostToPb(post *domain.Post) *pb.Post {
 	return postPb
 }
 
+func mapUsernamesToDomain(usernamesPb *pb.Usernames) []string {
+	var usernames []string
+	for _, username := range (usernamesPb).Username {
+		usernames = append(usernames, username)
+	}
+	return usernames
+}
+
 func mapPostPbToDomain(postPb *pb.Post) *domain.Post {
 	post := &domain.Post{
 		Username: (*postPb).Username,

@@ -36,6 +36,13 @@ service PostService{
     };
   }
 
+  rpc GetFeedPosts(FeedRequest)returns(FeedResponse){
+    option(google.api.http) = {
+      post: "/post/{page}/feed"
+      body: "usernames"
+    };
+  }
+
   rpc CreateCommentOnPost(CommentRequest) returns(CommentResponse){
     option(google.api.http) = {
       post: "/post/{postId}/comment"
@@ -44,6 +51,21 @@ service PostService{
   }
 }
 
+
+message FeedRequest{
+  int64 page =1;
+  Usernames usernames = 2;
+}
+
+message FeedResponse{
+  int64 page=1;
+  int64 lastPage =2;
+  repeated Post posts=3;
+}
+
+message Usernames{
+  repeated string username=1;
+}
 
 message NewPost {
   Post post = 1;
@@ -57,6 +79,7 @@ message CommentRequest {
 message CommentResponse {
   string commentId = 1;
 }
+
 
 message GetRequest {
   string id = 1;
