@@ -92,6 +92,7 @@ func (store *PostMongoDBStore) GetFeed(page int64, usernames []string) (*domain.
 	findOptions.SetSkip((page - 1) * perPage)
 	findOptions.SetLimit(perPage)
 	cursor, err := store.posts.Find(context.TODO(), filter, findOptions)
+	fmt.Printf("Total %d, %f\n", total, math.Ceil(float64(total)/float64(perPage)))
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +100,7 @@ func (store *PostMongoDBStore) GetFeed(page int64, usernames []string) (*domain.
 	dto := domain.FeedDto{
 		Posts:    posts,
 		Page:     page,
-		LastPage: int64(math.Ceil(float64(total / perPage))),
+		LastPage: int64(math.Ceil(float64(total) / float64(perPage))),
 	}
 	return &dto, nil
 }

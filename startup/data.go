@@ -9,12 +9,8 @@ import (
 var posts = []*domain.Post{
 	{
 		Id:       getObjectId("623b0cc3a34d25d8567f9f82"),
-<<<<<<< HEAD
-		Username: "suki",
-=======
-		Date:     time.Time{},
+		Date:     time.Now(),
 		Username: "anagavrilovic",
->>>>>>> 85df99a607bec9535ca0f727a382683b3f948199
 		Content:  "Mrzim Go!",
 		Image:    "",
 		Likes: []string{
@@ -26,7 +22,147 @@ var posts = []*domain.Post{
 			{
 				Id:       getObjectId("623b0cc3a34d25d8567f9f83"),
 				Content:  "I ja isto!",
-				Date:     time.Time{},
+				Date:     time.Now(),
+				Username: "srdjansukovic",
+			},
+		},
+	},
+	{
+		Id:       getObjectId("623b0cc3a34d25d8567f9f83"),
+		Date:     time.Now(),
+		Username: "suki",
+		Content:  "Mrzim Go!",
+		Image:    "",
+		Likes: []string{
+			"srdjansukovic",
+			"stefanljubovic",
+		},
+		Dislikes: []string{},
+		Comments: []domain.Comment{
+			{
+				Id:       getObjectId("623b0cc3a34d25d8567f9f83"),
+				Content:  "I ja isto!",
+				Date:     time.Now(),
+				Username: "srdjansukovic",
+			},
+		},
+	},
+	{
+		Id:       getObjectId("623b0cc3a34d25d8567f9f84"),
+		Date:     time.Now(),
+		Username: "marijakljestan",
+		Content:  "Mrzim Go!",
+		Image:    "",
+		Likes: []string{
+			"srdjansukovic",
+			"stefanljubovic",
+		},
+		Dislikes: []string{},
+		Comments: []domain.Comment{
+			{
+				Id:       getObjectId("623b0cc3a34d25d8567f9f83"),
+				Content:  "I ja isto!",
+				Date:     time.Now(),
+				Username: "srdjansukovic",
+			},
+		},
+	},
+	{
+		Id:       getObjectId("623b0cc3a34d25d8567f9f85"),
+		Date:     time.Now(),
+		Username: "marijakljestan",
+		Content:  "Mrzim Go!",
+		Image:    "",
+		Likes: []string{
+			"srdjansukovic",
+			"stefanljubovic",
+		},
+		Dislikes: []string{},
+		Comments: []domain.Comment{
+			{
+				Id:       getObjectId("623b0cc3a34d25d8567f9f83"),
+				Content:  "I ja isto!",
+				Date:     time.Now(),
+				Username: "srdjansukovic",
+			},
+		},
+	},
+	{
+		Id:       getObjectId("623b0cc3a34d25d8567f9f86"),
+		Date:     time.Now(),
+		Username: "anagavrilovic",
+		Content:  "Mrzim Go!",
+		Image:    "",
+		Likes: []string{
+			"srdjansukovic",
+			"stefanljubovic",
+		},
+		Dislikes: []string{},
+		Comments: []domain.Comment{
+			{
+				Id:       getObjectId("623b0cc3a34d25d8567f9f83"),
+				Content:  "I ja isto!",
+				Date:     time.Now(),
+				Username: "srdjansukovic",
+			},
+		},
+	},
+	{
+		Id:       getObjectId("623b0cc3a34d25d8567f9f87"),
+		Date:     time.Now(),
+		Username: "anagavrilovic",
+		Content:  "Mrzim Go!",
+		Image:    "",
+		Likes: []string{
+			"srdjansukovic",
+			"stefanljubovic",
+		},
+		Dislikes: []string{},
+		Comments: []domain.Comment{
+			{
+				Id:       getObjectId("623b0cc3a34d25d8567f9f83"),
+				Content:  "I ja isto!",
+				Date:     time.Now(),
+				Username: "srdjansukovic",
+			},
+		},
+	},
+	{
+		Id:       getObjectId("623b0cc3a34d25d8567f9f88"),
+		Date:     time.Now(),
+		Username: "anagavrilovic",
+		Content:  "Mrzim Go!",
+		Image:    "",
+		Likes: []string{
+			"srdjansukovic",
+			"stefanljubovic",
+		},
+		Dislikes: []string{},
+		Comments: []domain.Comment{
+			{
+				Id:       getObjectId("623b0cc3a34d25d8567f9f83"),
+				Content:  "I ja isto!",
+				Date:     time.Now(),
+				Username: "srdjansukovic",
+			},
+		},
+	},
+	{
+		Id:       getObjectId("623b0cc3a34d25d8567f9f89"),
+		Date:     time.Now(),
+		Username: "lenka",
+		Content:  "Mrzim Go!",
+		Image:    "",
+		Likes: []string{
+			"srdjansukovic",
+			"stefanljubovic",
+		},
+		Dislikes: []string{},
+		Comments: []domain.Comment{
+			{
+				Id:       getObjectId("623b0cc3a34d25d8567f9f83"),
+				Content:  "I ja isto!",
+				Date:     time.Now(),
 				Username: "srdjansukovic",
 			},
 		},
