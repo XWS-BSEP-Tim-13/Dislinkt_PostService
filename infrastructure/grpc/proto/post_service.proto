@@ -49,6 +49,21 @@ service PostService{
       body: "comment"
     };
   }
+
+  rpc UploadImage(ImageRequest) returns(ImageResponse){
+    option(google.api.http) = {
+      post: "/post/upload-image"
+      body: "*"
+    };
+  }
+}
+
+message ImageRequest{
+  bytes image = 1;
+}
+
+message ImageResponse{
+  string imagePath =1;
 }
 
 

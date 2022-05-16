@@ -27,8 +27,8 @@ func NewServer(config *config.Config) *Server {
 func (server *Server) Start() {
 	mongoClient := server.initMongoClient()
 	productStore := server.initPostStore(mongoClient)
-
-	productService := server.initPostService(productStore)
+	imageStore := server.initUploadImageStore()
+	productService := server.initPostService(productStore, imageStore)
 
 	productHandler := server.initPostHandler(productService)
 
@@ -55,8 +55,13 @@ func (server *Server) initPostStore(client *mongo.Client) domain.PostStore {
 	return store
 }
 
-func (server *Server) initPostService(store domain.PostStore) *application.PostService {
-	return application.NewPostService(store)
+func (server *Server) initUploadImageStore() domain.UploadImageStore {
+	imageStore := persistence.NewUploadImageStore()
+	return imageStore
+}
+
+func (server *Server) initPostService(store domain.PostStore, imageStore domain.UploadImageStore) *application.PostService {
+	return application.NewPostService(store, imageStore)
 }
 
 func (server *Server) initPostHandler(service *application.PostService) *api.PostHandler {

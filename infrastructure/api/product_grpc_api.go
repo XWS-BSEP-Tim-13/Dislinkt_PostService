@@ -139,3 +139,16 @@ func (handler *PostHandler) GetFeedPosts(ctx context.Context, request *pb.FeedRe
 	}
 	return response, nil
 }
+
+func (handler *PostHandler) UploadImage(ctx context.Context, request *pb.ImageRequest) (*pb.ImageResponse, error) {
+	fmt.Println("Upload slike")
+	image := request.Image
+	imagePath, err := handler.service.UploadImage(image)
+	if err != nil {
+		return nil, err
+	}
+	response := &pb.ImageResponse{
+		ImagePath: imagePath,
+	}
+	return response, nil
+}

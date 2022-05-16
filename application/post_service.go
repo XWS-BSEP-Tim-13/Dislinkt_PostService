@@ -10,12 +10,14 @@ import (
 )
 
 type PostService struct {
-	store domain.PostStore
+	store      domain.PostStore
+	imageStore domain.UploadImageStore
 }
 
-func NewPostService(store domain.PostStore) *PostService {
+func NewPostService(store domain.PostStore, imageStore domain.UploadImageStore) *PostService {
 	return &PostService{
-		store: store,
+		store:      store,
+		imageStore: imageStore,
 	}
 }
 
@@ -129,4 +131,12 @@ func (service *PostService) GetFeedPosts(page int64, usernames []string) (*domai
 	}
 	fmt.Printf("posts length: %d \n", len(dto.Posts))
 	return dto, err
+}
+
+func (service *PostService) UploadImage(image []byte) (string, error) {
+	filename, err := service.imageStore.UploadObject(image)
+	if err != nil {
+		return "", nil
+	}
+	return filename, nil
 }

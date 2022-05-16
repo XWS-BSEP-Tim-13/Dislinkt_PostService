@@ -3,6 +3,7 @@ module github.com/XWS-BSEP-Tim-13/Dislinkt_PostService
 go 1.18
 
 require (
+	github.com/aws/aws-sdk-go v1.44.15
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0
 	go.mongodb.org/mongo-driver v1.9.1
 	google.golang.org/grpc v1.45.0
@@ -19,6 +20,7 @@ require (
 require (
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
