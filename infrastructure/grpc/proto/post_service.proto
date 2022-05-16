@@ -59,7 +59,10 @@ service PostService{
 }
 
 message ImageRequest{
-  bytes image = 1;
+  oneof data {
+    string info = 1;
+    bytes image = 2;
+  };
 }
 
 message ImageResponse{
