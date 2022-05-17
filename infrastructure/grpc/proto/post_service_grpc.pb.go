@@ -29,7 +29,7 @@ type PostServiceClient interface {
 	ReactToPost(ctx context.Context, in *ReactionRequest, opts ...grpc.CallOption) (*ReactionResponse, error)
 	GetFeedPosts(ctx context.Context, in *FeedRequest, opts ...grpc.CallOption) (*FeedResponse, error)
 	CreateCommentOnPost(ctx context.Context, in *CommentRequest, opts ...grpc.CallOption) (*CommentResponse, error)
-	UploadImage(ctx context.Context, in *ImageRequest, opts ...grpc.CallOption) (*ImageResponse, error)
+	UploadImage(ctx context.Context, in *ImageRequest, opts ...grpc.CallOption) (*ImageResponsee, error)
 }
 
 type postServiceClient struct {
@@ -103,8 +103,8 @@ func (c *postServiceClient) CreateCommentOnPost(ctx context.Context, in *Comment
 	return out, nil
 }
 
-func (c *postServiceClient) UploadImage(ctx context.Context, in *ImageRequest, opts ...grpc.CallOption) (*ImageResponse, error) {
-	out := new(ImageResponse)
+func (c *postServiceClient) UploadImage(ctx context.Context, in *ImageRequest, opts ...grpc.CallOption) (*ImageResponsee, error) {
+	out := new(ImageResponsee)
 	err := c.cc.Invoke(ctx, "/post.PostService/UploadImage", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -123,7 +123,7 @@ type PostServiceServer interface {
 	ReactToPost(context.Context, *ReactionRequest) (*ReactionResponse, error)
 	GetFeedPosts(context.Context, *FeedRequest) (*FeedResponse, error)
 	CreateCommentOnPost(context.Context, *CommentRequest) (*CommentResponse, error)
-	UploadImage(context.Context, *ImageRequest) (*ImageResponse, error)
+	UploadImage(context.Context, *ImageRequest) (*ImageResponsee, error)
 	mustEmbedUnimplementedPostServiceServer()
 }
 
@@ -152,7 +152,7 @@ func (UnimplementedPostServiceServer) GetFeedPosts(context.Context, *FeedRequest
 func (UnimplementedPostServiceServer) CreateCommentOnPost(context.Context, *CommentRequest) (*CommentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCommentOnPost not implemented")
 }
-func (UnimplementedPostServiceServer) UploadImage(context.Context, *ImageRequest) (*ImageResponse, error) {
+func (UnimplementedPostServiceServer) UploadImage(context.Context, *ImageRequest) (*ImageResponsee, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UploadImage not implemented")
 }
 func (UnimplementedPostServiceServer) mustEmbedUnimplementedPostServiceServer() {}
