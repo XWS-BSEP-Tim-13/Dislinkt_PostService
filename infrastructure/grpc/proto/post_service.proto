@@ -50,7 +50,7 @@ service PostService{
     };
   }
 
-  rpc UploadImage(stream ImageRequest) returns(ImageResponse){
+  rpc UploadImage(ImageRequest) returns(ImageResponse){
     option(google.api.http) = {
       post: "/post/upload-image"
       body: "image"
