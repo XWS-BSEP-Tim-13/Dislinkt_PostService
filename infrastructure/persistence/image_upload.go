@@ -6,6 +6,7 @@ import (
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/domain"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/google/uuid"
@@ -22,19 +23,33 @@ const (
 )
 
 type UploadImageStoreImpl struct {
+	secretAccessKey string
+	accessKey       string
 }
 
-func NewUploadImageStore() domain.UploadImageStore {
-	return &UploadImageStoreImpl{}
+func NewUploadImageStore(secretAccessKey, accessKey string) domain.UploadImageStore {
+	return &UploadImageStoreImpl{
+		accessKey:       accessKey,
+		secretAccessKey: secretAccessKey,
+	}
 }
 
-func init() {
-	s3session = s3.New(session.Must(session.NewSession(&aws.Config{
-		Region: aws.String(REGION),
-	})))
+func (store *UploadImageStoreImpl) Start() {
+	fmt.Printf("Credentials: %s\n", store.accessKey)
+	sess, err := session.NewSession(&aws.Config{
+		Region:      aws.String(REGION),
+		Credentials: credentials.NewStaticCredentials(store.accessKey, store.secretAccessKey, ""),
+	})
+	if err != nil {
+		panic(err)
+		return
+	}
+	s3session = s3.New(sess)
+	CreateBucket()
 }
 
-func (store *UploadImageStoreImpl) CreateBucket() (resp *s3.CreateBucketOutput) {
+func CreateBucket() (resp *s3.CreateBucketOutput) {
+	fmt.Println("Creating bucket!")
 	resp, err := s3session.CreateBucket(&s3.CreateBucketInput{
 		// ACL: aws.String(s3.BucketCannedACLPrivate),
 		// ACL: aws.String(s3.BucketCannedACLPublicRead),
@@ -56,7 +71,6 @@ func (store *UploadImageStoreImpl) CreateBucket() (resp *s3.CreateBucketOutput) 
 			}
 		}
 	}
-
 	return resp
 }
 
@@ -72,8 +86,10 @@ func (store *UploadImageStoreImpl) UploadObject(image []byte) (string, error) {
 	})
 
 	if err != nil {
+		fmt.Printf("Error: %s\n", err)
 		return "", err
 	}
+	fmt.Println("Uploaded:")
 
 	return filename.String(), nil
 }

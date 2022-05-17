@@ -56,7 +56,8 @@ func (server *Server) initPostStore(client *mongo.Client) domain.PostStore {
 }
 
 func (server *Server) initUploadImageStore() domain.UploadImageStore {
-	imageStore := persistence.NewUploadImageStore()
+	imageStore := persistence.NewUploadImageStore(server.config.SecretAccessKey, server.config.AccessKey)
+	imageStore.Start()
 	return imageStore
 }
 
