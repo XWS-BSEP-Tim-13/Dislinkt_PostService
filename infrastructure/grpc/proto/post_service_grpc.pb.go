@@ -29,7 +29,7 @@ type PostServiceClient interface {
 	ReactToPost(ctx context.Context, in *ReactionRequest, opts ...grpc.CallOption) (*ReactionResponse, error)
 	GetFeedPosts(ctx context.Context, in *FeedRequest, opts ...grpc.CallOption) (*FeedResponse, error)
 	CreateCommentOnPost(ctx context.Context, in *CommentRequest, opts ...grpc.CallOption) (*CommentResponse, error)
-	UploadImage(ctx context.Context, in *ImageRequest, opts ...grpc.CallOption) (*ImageResponse, error)
+	UploadImage(ctx context.Context, opts ...grpc.CallOption) (PostService_UploadImageClient, error)
 }
 
 type postServiceClient struct {
@@ -103,13 +103,38 @@ func (c *postServiceClient) CreateCommentOnPost(ctx context.Context, in *Comment
 	return out, nil
 }
 
-func (c *postServiceClient) UploadImage(ctx context.Context, in *ImageRequest, opts ...grpc.CallOption) (*ImageResponse, error) {
-	out := new(ImageResponse)
-	err := c.cc.Invoke(ctx, "/post.PostService/UploadImage", in, out, opts...)
+func (c *postServiceClient) UploadImage(ctx context.Context, opts ...grpc.CallOption) (PostService_UploadImageClient, error) {
+	stream, err := c.cc.NewStream(ctx, &PostService_ServiceDesc.Streams[0], "/post.PostService/UploadImage", opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &postServiceUploadImageClient{stream}
+	return x, nil
+}
+
+type PostService_UploadImageClient interface {
+	Send(*ImageRequest) error
+	CloseAndRecv() (*ImageResponse, error)
+	grpc.ClientStream
+}
+
+type postServiceUploadImageClient struct {
+	grpc.ClientStream
+}
+
+func (x *postServiceUploadImageClient) Send(m *ImageRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *postServiceUploadImageClient) CloseAndRecv() (*ImageResponse, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(ImageResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 // PostServiceServer is the server API for PostService service.
@@ -123,7 +148,7 @@ type PostServiceServer interface {
 	ReactToPost(context.Context, *ReactionRequest) (*ReactionResponse, error)
 	GetFeedPosts(context.Context, *FeedRequest) (*FeedResponse, error)
 	CreateCommentOnPost(context.Context, *CommentRequest) (*CommentResponse, error)
-	UploadImage(context.Context, *ImageRequest) (*ImageResponse, error)
+	UploadImage(PostService_UploadImageServer) error
 	mustEmbedUnimplementedPostServiceServer()
 }
 
@@ -152,8 +177,8 @@ func (UnimplementedPostServiceServer) GetFeedPosts(context.Context, *FeedRequest
 func (UnimplementedPostServiceServer) CreateCommentOnPost(context.Context, *CommentRequest) (*CommentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCommentOnPost not implemented")
 }
-func (UnimplementedPostServiceServer) UploadImage(context.Context, *ImageRequest) (*ImageResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UploadImage not implemented")
+func (UnimplementedPostServiceServer) UploadImage(PostService_UploadImageServer) error {
+	return status.Errorf(codes.Unimplemented, "method UploadImage not implemented")
 }
 func (UnimplementedPostServiceServer) mustEmbedUnimplementedPostServiceServer() {}
 
@@ -294,22 +319,30 @@ func _PostService_CreateCommentOnPost_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PostService_UploadImage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ImageRequest)
-	if err := dec(in); err != nil {
+func _PostService_UploadImage_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(PostServiceServer).UploadImage(&postServiceUploadImageServer{stream})
+}
+
+type PostService_UploadImageServer interface {
+	SendAndClose(*ImageResponse) error
+	Recv() (*ImageRequest, error)
+	grpc.ServerStream
+}
+
+type postServiceUploadImageServer struct {
+	grpc.ServerStream
+}
+
+func (x *postServiceUploadImageServer) SendAndClose(m *ImageResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *postServiceUploadImageServer) Recv() (*ImageRequest, error) {
+	m := new(ImageRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
-	if interceptor == nil {
-		return srv.(PostServiceServer).UploadImage(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/post.PostService/UploadImage",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PostServiceServer).UploadImage(ctx, req.(*ImageRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	return m, nil
 }
 
 // PostService_ServiceDesc is the grpc.ServiceDesc for PostService service.
@@ -347,11 +380,13 @@ var PostService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "CreateCommentOnPost",
 			Handler:    _PostService_CreateCommentOnPost_Handler,
 		},
+	},
+	Streams: []grpc.StreamDesc{
 		{
-			MethodName: "UploadImage",
-			Handler:    _PostService_UploadImage_Handler,
+			StreamName:    "UploadImage",
+			Handler:       _PostService_UploadImage_Handler,
+			ClientStreams: true,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
 	Metadata: "post_service.proto",
 }
