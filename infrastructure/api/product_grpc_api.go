@@ -46,6 +46,7 @@ func (handler *PostHandler) GetAll(ctx context.Context, request *pb.GetAllReques
 		Posts: []*pb.Post{},
 	}
 	for _, post := range posts {
+		fmt.Printf("Image %s\n", post.Image)
 		current := mapPostToPb(post)
 		response.Posts = append(response.Posts, current)
 	}
@@ -148,6 +149,19 @@ func (handler *PostHandler) UploadImage(ctx context.Context, request *pb.ImageRe
 	}
 	response := &pb.ImageResponse{
 		ImagePath: imagePath,
+	}
+	return response, nil
+}
+
+func (handler *PostHandler) GetImage(ctx context.Context, request *pb.ImageResponse) (*pb.ImageRequest, error) {
+	fmt.Println("Dobavljanje slike")
+	imagePath := request.ImagePath
+	image, err := handler.service.GetImage(imagePath)
+	if err != nil {
+		return nil, err
+	}
+	response := &pb.ImageRequest{
+		Image: image,
 	}
 	return response, nil
 }

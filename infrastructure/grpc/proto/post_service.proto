@@ -56,6 +56,12 @@ service PostService{
       body: "image"
     };
   }
+
+  rpc GetImage(ImageResponse) returns (ImageRequest){
+    option(google.api.http) = {
+      get :"/post/image/{imagePath}"
+    };
+  }
 }
 
 message ImageRequest{

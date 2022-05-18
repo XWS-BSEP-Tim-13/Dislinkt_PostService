@@ -12,7 +12,7 @@ var posts = []*domain.Post{
 		Date:     time.Now(),
 		Username: "anagavrilovic",
 		Content:  "Mrzim Go!",
-		Image:    "",
+		Image:    "3f74e912-6d37-4aef-92e8-3981d5bc9a23",
 		Likes: []string{
 			"srdjansukovic",
 			"stefanljubovic",

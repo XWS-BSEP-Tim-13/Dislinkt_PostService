@@ -30,6 +30,7 @@ type PostServiceClient interface {
 	GetFeedPosts(ctx context.Context, in *FeedRequest, opts ...grpc.CallOption) (*FeedResponse, error)
 	CreateCommentOnPost(ctx context.Context, in *CommentRequest, opts ...grpc.CallOption) (*CommentResponse, error)
 	UploadImage(ctx context.Context, in *ImageRequest, opts ...grpc.CallOption) (*ImageResponse, error)
+	GetImage(ctx context.Context, in *ImageResponse, opts ...grpc.CallOption) (*ImageRequest, error)
 }
 
 type postServiceClient struct {
@@ -112,6 +113,15 @@ func (c *postServiceClient) UploadImage(ctx context.Context, in *ImageRequest, o
 	return out, nil
 }
 
+func (c *postServiceClient) GetImage(ctx context.Context, in *ImageResponse, opts ...grpc.CallOption) (*ImageRequest, error) {
+	out := new(ImageRequest)
+	err := c.cc.Invoke(ctx, "/post.PostService/GetImage", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PostServiceServer is the server API for PostService service.
 // All implementations must embed UnimplementedPostServiceServer
 // for forward compatibility
@@ -124,6 +134,7 @@ type PostServiceServer interface {
 	GetFeedPosts(context.Context, *FeedRequest) (*FeedResponse, error)
 	CreateCommentOnPost(context.Context, *CommentRequest) (*CommentResponse, error)
 	UploadImage(context.Context, *ImageRequest) (*ImageResponse, error)
+	GetImage(context.Context, *ImageResponse) (*ImageRequest, error)
 	mustEmbedUnimplementedPostServiceServer()
 }
 
@@ -154,6 +165,9 @@ func (UnimplementedPostServiceServer) CreateCommentOnPost(context.Context, *Comm
 }
 func (UnimplementedPostServiceServer) UploadImage(context.Context, *ImageRequest) (*ImageResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UploadImage not implemented")
+}
+func (UnimplementedPostServiceServer) GetImage(context.Context, *ImageResponse) (*ImageRequest, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetImage not implemented")
 }
 func (UnimplementedPostServiceServer) mustEmbedUnimplementedPostServiceServer() {}
 
@@ -312,6 +326,24 @@ func _PostService_UploadImage_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PostService_GetImage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ImageResponse)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PostServiceServer).GetImage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/post.PostService/GetImage",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PostServiceServer).GetImage(ctx, req.(*ImageResponse))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PostService_ServiceDesc is the grpc.ServiceDesc for PostService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -350,6 +382,10 @@ var PostService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UploadImage",
 			Handler:    _PostService_UploadImage_Handler,
+		},
+		{
+			MethodName: "GetImage",
+			Handler:    _PostService_GetImage_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
