@@ -6,6 +6,7 @@ import (
 	pb "github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/infrastructure/grpc/proto"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"time"
 )
 
 func mapPostToPb(post *domain.Post) *pb.Post {
@@ -35,6 +36,19 @@ func mapUsernamesToDomain(usernamesPb *pb.Usernames) []string {
 		usernames = append(usernames, username)
 	}
 	return usernames
+}
+
+func mapPostDtoPbToDomain(postPb *pb.PostDto, username string) *domain.Post {
+	post := &domain.Post{
+		Username: username,
+		Content:  (*postPb).Content,
+		Image:    (*postPb).Image,
+		Date:     time.Now(),
+		Likes:    []string{},
+		Dislikes: []string{},
+		Comments: []domain.Comment{},
+	}
+	return post
 }
 
 func mapPostPbToDomain(postPb *pb.Post) *domain.Post {

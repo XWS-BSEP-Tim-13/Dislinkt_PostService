@@ -25,7 +25,7 @@ type PostServiceClient interface {
 	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetResponse, error)
 	GetAll(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (*GetAllResponse, error)
 	GetByUser(ctx context.Context, in *GetByUserRequest, opts ...grpc.CallOption) (*GetAllResponse, error)
-	CreatePost(ctx context.Context, in *NewPost, opts ...grpc.CallOption) (*NewPost, error)
+	CreatePost(ctx context.Context, in *NewPostRequest, opts ...grpc.CallOption) (*NewPost, error)
 	ReactToPost(ctx context.Context, in *ReactionRequest, opts ...grpc.CallOption) (*ReactionResponse, error)
 	GetFeedPosts(ctx context.Context, in *FeedRequest, opts ...grpc.CallOption) (*FeedResponse, error)
 	CreateCommentOnPost(ctx context.Context, in *CommentRequest, opts ...grpc.CallOption) (*CommentResponse, error)
@@ -67,7 +67,7 @@ func (c *postServiceClient) GetByUser(ctx context.Context, in *GetByUserRequest,
 	return out, nil
 }
 
-func (c *postServiceClient) CreatePost(ctx context.Context, in *NewPost, opts ...grpc.CallOption) (*NewPost, error) {
+func (c *postServiceClient) CreatePost(ctx context.Context, in *NewPostRequest, opts ...grpc.CallOption) (*NewPost, error) {
 	out := new(NewPost)
 	err := c.cc.Invoke(ctx, "/post.PostService/CreatePost", in, out, opts...)
 	if err != nil {
@@ -119,7 +119,7 @@ type PostServiceServer interface {
 	Get(context.Context, *GetRequest) (*GetResponse, error)
 	GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error)
 	GetByUser(context.Context, *GetByUserRequest) (*GetAllResponse, error)
-	CreatePost(context.Context, *NewPost) (*NewPost, error)
+	CreatePost(context.Context, *NewPostRequest) (*NewPost, error)
 	ReactToPost(context.Context, *ReactionRequest) (*ReactionResponse, error)
 	GetFeedPosts(context.Context, *FeedRequest) (*FeedResponse, error)
 	CreateCommentOnPost(context.Context, *CommentRequest) (*CommentResponse, error)
@@ -140,7 +140,7 @@ func (UnimplementedPostServiceServer) GetAll(context.Context, *GetAllRequest) (*
 func (UnimplementedPostServiceServer) GetByUser(context.Context, *GetByUserRequest) (*GetAllResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetByUser not implemented")
 }
-func (UnimplementedPostServiceServer) CreatePost(context.Context, *NewPost) (*NewPost, error) {
+func (UnimplementedPostServiceServer) CreatePost(context.Context, *NewPostRequest) (*NewPost, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreatePost not implemented")
 }
 func (UnimplementedPostServiceServer) ReactToPost(context.Context, *ReactionRequest) (*ReactionResponse, error) {
@@ -223,7 +223,7 @@ func _PostService_GetByUser_Handler(srv interface{}, ctx context.Context, dec fu
 }
 
 func _PostService_CreatePost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(NewPost)
+	in := new(NewPostRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -235,7 +235,7 @@ func _PostService_CreatePost_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/post.PostService/CreatePost",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PostServiceServer).CreatePost(ctx, req.(*NewPost))
+		return srv.(PostServiceServer).CreatePost(ctx, req.(*NewPostRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

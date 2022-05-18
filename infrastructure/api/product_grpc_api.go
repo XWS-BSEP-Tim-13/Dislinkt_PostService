@@ -68,9 +68,9 @@ func (handler *PostHandler) GetByUser(ctx context.Context, request *pb.GetByUser
 	return response, nil
 }
 
-func (handler *PostHandler) CreatePost(ctx context.Context, request *pb.NewPost) (*pb.NewPost, error) {
+func (handler *PostHandler) CreatePost(ctx context.Context, request *pb.NewPostRequest) (*pb.NewPost, error) {
 	fmt.Println((*request).Post)
-	post := mapPostPbToDomain(request.Post)
+	post := mapPostDtoPbToDomain(request.Post, "ljubo")
 	fmt.Println(post)
 
 	newPost, err := handler.service.CreateNewPost(post)
@@ -81,7 +81,6 @@ func (handler *PostHandler) CreatePost(ctx context.Context, request *pb.NewPost)
 	response := &pb.NewPost{
 		Post: mapPostToPb(newPost),
 	}
-
 	return response, nil
 }
 
