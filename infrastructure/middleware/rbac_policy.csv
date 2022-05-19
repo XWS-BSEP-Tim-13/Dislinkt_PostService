@@ -1,0 +1,6 @@
+p, ADMIN, /user/feed, *
+p, USER, /user/feed, *
+p, ADMIN, /user/get-posts, *
+p, ADMIN , /post/user, *
+p, USER , /post.PostService/GetAll, *
+p, ADMIN , /post.PostService/GetAll, *

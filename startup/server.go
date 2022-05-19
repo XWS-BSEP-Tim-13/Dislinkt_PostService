@@ -6,8 +6,13 @@ import (
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/domain"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/infrastructure/api"
 	post "github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/infrastructure/grpc/proto"
+	mw "github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/infrastructure/middleware"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/infrastructure/persistence"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/startup/config"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
+	grpc_tags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
+	logg "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
 	"log"
@@ -72,9 +77,24 @@ func (server *Server) initPostHandler(service *application.PostService) *api.Pos
 func (server *Server) startGrpcServer(postHandler *api.PostHandler) {
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", server.config.Port))
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		logg.Fatalf("failed to listen: %v", err)
 	}
-	grpcServer := grpc.NewServer()
+
+	logger := logg.WithFields(logg.Fields{
+		"goapi": "server",
+	})
+
+	CommonInterceptors := grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+		grpc_logrus.UnaryServerInterceptor(logger),
+		mw.AuthInterceptor(),
+		grpc_tags.UnaryServerInterceptor(),
+	))
+
+	opts := []grpc.ServerOption{
+		CommonInterceptors,
+	}
+
+	grpcServer := grpc.NewServer(opts...)
 	post.RegisterPostServiceServer(grpcServer, postHandler)
 	if err := grpcServer.Serve(listener); err != nil {
 		log.Fatalf("failed to serve: %s", err)
