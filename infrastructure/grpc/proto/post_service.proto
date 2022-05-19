@@ -98,7 +98,7 @@ message NewPost {
 
 message CommentRequest {
   string postId = 1;
-  Comment comment = 2;
+  CommentDto comment = 2;
 }
 
 message CommentResponse {
@@ -159,6 +159,11 @@ message Post {
   repeated string dislikes = 6;
   repeated Comment comments = 7;
   google.protobuf.Timestamp date = 8;
+}
+
+message CommentDto {
+  string content = 1;
+  string username = 2;
 }
 
 message Comment {

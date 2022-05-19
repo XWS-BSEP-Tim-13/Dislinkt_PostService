@@ -100,6 +100,15 @@ func mapReactionToDomain(reactionPb *pb.Reaction) *domain.Reaction {
 	return reaction
 }
 
+func mapCommentDtoToDomain(commentPb *pb.CommentDto) *domain.Comment {
+	comment := &domain.Comment{
+		Content:  (*commentPb).Content,
+		Username: (*commentPb).Username,
+		Date:     time.Now(),
+	}
+	return comment
+}
+
 func mapCommentToDomain(commentPb *pb.Comment) *domain.Comment {
 	comment := &domain.Comment{
 		Content:  (*commentPb).Content,

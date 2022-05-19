@@ -104,7 +104,7 @@ func (handler *PostHandler) ReactToPost(ctx context.Context, request *pb.Reactio
 
 func (handler *PostHandler) CreateCommentOnPost(ctx context.Context, request *pb.CommentRequest) (*pb.CommentResponse, error) {
 	fmt.Println((*request).Comment)
-	comment := mapCommentToDomain(request.Comment)
+	comment := mapCommentDtoToDomain(request.Comment)
 	fmt.Println(comment)
 	postId := (*request).PostId
 
