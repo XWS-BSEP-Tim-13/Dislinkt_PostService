@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"context"
-	"fmt"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/jwt"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
@@ -11,7 +10,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"strings"
 )
 
 var (
@@ -33,51 +31,21 @@ func init() {
 func AuthInterceptor() grpc.UnaryServerInterceptor {
 
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-		//ctx.Value()
-		// If the request is for the /auth endpoint, then let the
-		// request through without checking for auth.
-		//if interceptorAuthUriRegex.MatchString(info.FullMethod) {
-		//	return handler(ctx, req)
-		//}
 
 		tokenStr, err := grpc_auth.AuthFromMD(ctx, "Bearer")
 
 		if err != nil {
 			return req, grpc.Errorf(codes.Unauthenticated, err.Error())
 		}
-
-		// Parse the JWT token string into a token object
-		token, claims, err := jwt.ParseJwt(tokenStr)
+		token, _, err := jwt.ParseJwt(tokenStr)
 		if err != nil || token == nil {
 			return req, grpc.Errorf(codes.Unauthenticated, err.Error())
 		} else if !token.Valid {
 			return req, grpc.Errorf(codes.Unauthenticated, "Invalid Token")
 		}
 
-		FullMethod := strings.Split(info.FullMethod, "/")
-
-		role := claims.Role
-
-		fmt.Println(FullMethod)
-		fmt.Println(claims.Role)
-		fmt.Println(claims.Username)
-
-		isAuthorized, err := enforce(role, "/post", "get")
-
-		if err != nil {
-			fmt.Println(err)
-			return req, grpc.Errorf(codes.Internal, "Internal Server error while authorization!")
-		}
-
-		if !isAuthorized {
-			return req, grpc.Errorf(codes.PermissionDenied, "Forbidden request!")
-		}
-
-		// Find the user
-		//user, err := config.AppConfig.GetUserById(claims.Id)
-		//if err != nil {
-		//	return req, grpc.Errorf(codes.Unauthenticated, "Invalid User Id")
-		//}
+		//role := claims.Role
+		//username := claims.Username
 
 		newCtx := context.TODO()
 		return handler(newCtx, req)

@@ -1,37 +1,21 @@
 package jwt
 
 import (
+	"context"
 	"errors"
-	"time"
-
+	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/startup/config"
 	jwtgo "github.com/dgrijalva/jwt-go"
+	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 )
 
-var SigningKey = []byte("123456")
+var SigningKey = []byte(config.NewConfig().SigningJwtKey)
 
 type CustomClaims struct {
 	Username string `json:"username"`
 	Role     string `json:"role"`
 	jwtgo.StandardClaims
-}
-
-func CreateJwtWithIdRole(id string, role string, secondsToExpiration int64) (string, error) {
-	now := time.Now()
-	claims := CustomClaims{
-		id,
-		role,
-		jwtgo.StandardClaims{
-			Issuer:    "apiservice",
-			Audience:  "apiservice",
-			IssuedAt:  now.Unix(),
-			ExpiresAt: now.Add(time.Second * time.Duration(secondsToExpiration)).Unix(),
-		},
-	}
-
-	token := jwtgo.NewWithClaims(jwtgo.SigningMethodHS256, claims)
-	ss, err := token.SignedString(SigningKey)
-
-	return ss, err
 }
 
 func keyLookupFunction(token *jwtgo.Token) (interface{}, error) {
@@ -55,4 +39,38 @@ func ParseJwt(tokenStr string) (*jwtgo.Token, *CustomClaims, error) {
 		panic("Type Assertion failed")
 	}
 	return token, claims, err
+}
+
+func ExtractRoleFromToken(ctx context.Context) (string, error) {
+	tokenStr, err := grpc_auth.AuthFromMD(ctx, "Bearer")
+
+	if err != nil {
+		return "", grpc.Errorf(codes.Unauthenticated, err.Error())
+	}
+
+	token, claims, err := ParseJwt(tokenStr)
+	if err != nil || token == nil {
+		return "", grpc.Errorf(codes.Unauthenticated, err.Error())
+	} else if !token.Valid {
+		return "", grpc.Errorf(codes.Unauthenticated, "Invalid Token")
+	}
+
+	return claims.Role, nil
+}
+
+func ExtractUsernameFromToken(ctx context.Context) (string, error) {
+	tokenStr, err := grpc_auth.AuthFromMD(ctx, "Bearer")
+
+	if err != nil {
+		return "", grpc.Errorf(codes.Unauthenticated, err.Error())
+	}
+
+	token, claims, err := ParseJwt(tokenStr)
+	if err != nil || token == nil {
+		return "", grpc.Errorf(codes.Unauthenticated, err.Error())
+	} else if !token.Valid {
+		return "", grpc.Errorf(codes.Unauthenticated, "Invalid Token")
+	}
+
+	return claims.Username, nil
 }
