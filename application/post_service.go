@@ -140,3 +140,8 @@ func (service *PostService) UploadImage(image []byte) (string, error) {
 	}
 	return filename, nil
 }
+
+func (service *PostService) GetImage(imagePath string) ([]byte, error) {
+	image := service.imageStore.GetObject(imagePath)
+	return image, nil
+}

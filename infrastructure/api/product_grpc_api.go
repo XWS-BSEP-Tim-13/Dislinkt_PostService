@@ -46,6 +46,7 @@ func (handler *PostHandler) GetAll(ctx context.Context, request *pb.GetAllReques
 		Posts: []*pb.Post{},
 	}
 	for _, post := range posts {
+		fmt.Printf("Image %s\n", post.Image)
 		current := mapPostToPb(post)
 		response.Posts = append(response.Posts, current)
 	}
@@ -70,7 +71,7 @@ func (handler *PostHandler) GetByUser(ctx context.Context, request *pb.GetByUser
 
 func (handler *PostHandler) CreatePost(ctx context.Context, request *pb.NewPostRequest) (*pb.NewPost, error) {
 	fmt.Println((*request).Post)
-	post := mapPostDtoPbToDomain(request.Post, "ljubo")
+	post := mapPostDtoPbToDomain(request.Post, "stefanljubovic")
 	fmt.Println(post)
 
 	newPost, err := handler.service.CreateNewPost(post)
@@ -103,7 +104,7 @@ func (handler *PostHandler) ReactToPost(ctx context.Context, request *pb.Reactio
 
 func (handler *PostHandler) CreateCommentOnPost(ctx context.Context, request *pb.CommentRequest) (*pb.CommentResponse, error) {
 	fmt.Println((*request).Comment)
-	comment := mapCommentToDomain(request.Comment)
+	comment := mapCommentDtoToDomain(request.Comment)
 	fmt.Println(comment)
 	postId := (*request).PostId
 
@@ -148,6 +149,19 @@ func (handler *PostHandler) UploadImage(ctx context.Context, request *pb.ImageRe
 	}
 	response := &pb.ImageResponse{
 		ImagePath: imagePath,
+	}
+	return response, nil
+}
+
+func (handler *PostHandler) GetImage(ctx context.Context, request *pb.ImageResponse) (*pb.ImageRequest, error) {
+	fmt.Println("Dobavljanje slike")
+	imagePath := request.ImagePath
+	image, err := handler.service.GetImage(imagePath)
+	if err != nil {
+		return nil, err
+	}
+	response := &pb.ImageRequest{
+		Image: image,
 	}
 	return response, nil
 }

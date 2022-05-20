@@ -86,7 +86,7 @@ func (store *PostMongoDBStore) UpdateReactions(post *domain.Post) (string, error
 func (store *PostMongoDBStore) GetFeed(page int64, usernames []string) (*domain.FeedDto, error) {
 	filter := bson.D{{"username", bson.D{{"$in", usernames}}}}
 	findOptions := options.Find()
-	findOptions.SetSort(bson.D{{"date", 1}})
+	findOptions.SetSort(bson.D{{"date", -1}})
 	var perPage int64 = 5
 	total, _ := store.posts.CountDocuments(context.TODO(), filter)
 	findOptions.SetSkip((page - 1) * perPage)
