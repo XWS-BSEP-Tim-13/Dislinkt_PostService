@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/application"
 	pb "github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/infrastructure/grpc/proto"
+	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/jwt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/grpc/status"
 )
@@ -73,6 +74,9 @@ func (handler *PostHandler) CreatePost(ctx context.Context, request *pb.NewPostR
 	fmt.Println((*request).Post)
 	post := mapPostDtoPbToDomain(request.Post, "stefanljubovic")
 	fmt.Println(post)
+
+	username, _ := jwt.ExtractUsernameFromToken(ctx)
+	fmt.Println(username)
 
 	newPost, err := handler.service.CreateNewPost(post)
 	if err != nil {

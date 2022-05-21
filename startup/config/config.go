@@ -8,6 +8,7 @@ type Config struct {
 	PostDBPort      string
 	AccessKey       string
 	SecretAccessKey string
+	SigningJwtKey   string
 }
 
 func NewConfig() *Config {
@@ -17,5 +18,6 @@ func NewConfig() *Config {
 		PostDBPort:      os.Getenv("POST_DB_PORT"),
 		AccessKey:       os.Getenv("AWS_ACCESS_KEY_ID"),
 		SecretAccessKey: os.Getenv("AWS_SECRET_ACCESS_KEY"),
+		SigningJwtKey:   os.Getenv("SIGNING_JWT_KEY"),
 	}
 }

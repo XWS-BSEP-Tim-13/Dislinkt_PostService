@@ -8,6 +8,7 @@ import (
 	post "github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/infrastructure/grpc/proto"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/infrastructure/persistence"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/startup/config"
+	logg "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
 	"log"
@@ -72,8 +73,9 @@ func (server *Server) initPostHandler(service *application.PostService) *api.Pos
 func (server *Server) startGrpcServer(postHandler *api.PostHandler) {
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", server.config.Port))
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		logg.Fatalf("failed to listen: %v", err)
 	}
+
 	grpcServer := grpc.NewServer()
 	post.RegisterPostServiceServer(grpcServer, postHandler)
 	if err := grpcServer.Serve(listener); err != nil {
