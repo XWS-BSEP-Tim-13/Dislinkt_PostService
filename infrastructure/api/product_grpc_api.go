@@ -140,6 +140,26 @@ func (handler *PostHandler) GetFeedPosts(ctx context.Context, request *pb.FeedRe
 	return response, nil
 }
 
+func (handler *PostHandler) GetFeedPostsAnonymous(ctx context.Context, request *pb.FeedRequestAnonymous) (*pb.FeedResponse, error) {
+	fmt.Println("Posts microservice anonymous")
+	dto, err := handler.service.GetFeedPostsAnonymous(request.Page)
+	if err != nil {
+		return nil, err
+	}
+	pbPosts := []*pb.Post{}
+	for _, post := range dto.Posts {
+		current := mapPostToPb(post)
+		pbPosts = append(pbPosts, current)
+	}
+	response := &pb.FeedResponse{
+		Posts:    pbPosts,
+		LastPage: dto.LastPage,
+		Page:     dto.Page,
+	}
+	return response, nil
+
+}
+
 func (handler *PostHandler) UploadImage(ctx context.Context, request *pb.ImageRequest) (*pb.ImageResponse, error) {
 	fmt.Println("Upload slike")
 	image := request.Image

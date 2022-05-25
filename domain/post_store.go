@@ -12,4 +12,5 @@ type PostStore interface {
 	GetByUser(username string) ([]*Post, error)
 	UpdateReactions(post *Post) (string, error)
 	GetFeed(page int64, usernames []string) (*FeedDto, error)
+	GetFeedAnonymous(page int64) (*FeedDto, error)
 }

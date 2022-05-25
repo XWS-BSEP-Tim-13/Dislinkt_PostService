@@ -28,6 +28,7 @@ type PostServiceClient interface {
 	CreatePost(ctx context.Context, in *NewPostRequest, opts ...grpc.CallOption) (*NewPost, error)
 	ReactToPost(ctx context.Context, in *ReactionRequest, opts ...grpc.CallOption) (*ReactionResponse, error)
 	GetFeedPosts(ctx context.Context, in *FeedRequest, opts ...grpc.CallOption) (*FeedResponse, error)
+	GetFeedPostsAnonymous(ctx context.Context, in *FeedRequestAnonymous, opts ...grpc.CallOption) (*FeedResponse, error)
 	CreateCommentOnPost(ctx context.Context, in *CommentRequest, opts ...grpc.CallOption) (*CommentResponse, error)
 	UploadImage(ctx context.Context, in *ImageRequest, opts ...grpc.CallOption) (*ImageResponse, error)
 	GetImage(ctx context.Context, in *ImageResponse, opts ...grpc.CallOption) (*ImageRequest, error)
@@ -95,6 +96,15 @@ func (c *postServiceClient) GetFeedPosts(ctx context.Context, in *FeedRequest, o
 	return out, nil
 }
 
+func (c *postServiceClient) GetFeedPostsAnonymous(ctx context.Context, in *FeedRequestAnonymous, opts ...grpc.CallOption) (*FeedResponse, error) {
+	out := new(FeedResponse)
+	err := c.cc.Invoke(ctx, "/post.PostService/GetFeedPostsAnonymous", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *postServiceClient) CreateCommentOnPost(ctx context.Context, in *CommentRequest, opts ...grpc.CallOption) (*CommentResponse, error) {
 	out := new(CommentResponse)
 	err := c.cc.Invoke(ctx, "/post.PostService/CreateCommentOnPost", in, out, opts...)
@@ -132,6 +142,7 @@ type PostServiceServer interface {
 	CreatePost(context.Context, *NewPostRequest) (*NewPost, error)
 	ReactToPost(context.Context, *ReactionRequest) (*ReactionResponse, error)
 	GetFeedPosts(context.Context, *FeedRequest) (*FeedResponse, error)
+	GetFeedPostsAnonymous(context.Context, *FeedRequestAnonymous) (*FeedResponse, error)
 	CreateCommentOnPost(context.Context, *CommentRequest) (*CommentResponse, error)
 	UploadImage(context.Context, *ImageRequest) (*ImageResponse, error)
 	GetImage(context.Context, *ImageResponse) (*ImageRequest, error)
@@ -159,6 +170,9 @@ func (UnimplementedPostServiceServer) ReactToPost(context.Context, *ReactionRequ
 }
 func (UnimplementedPostServiceServer) GetFeedPosts(context.Context, *FeedRequest) (*FeedResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFeedPosts not implemented")
+}
+func (UnimplementedPostServiceServer) GetFeedPostsAnonymous(context.Context, *FeedRequestAnonymous) (*FeedResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFeedPostsAnonymous not implemented")
 }
 func (UnimplementedPostServiceServer) CreateCommentOnPost(context.Context, *CommentRequest) (*CommentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCommentOnPost not implemented")
@@ -290,6 +304,24 @@ func _PostService_GetFeedPosts_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PostService_GetFeedPostsAnonymous_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FeedRequestAnonymous)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PostServiceServer).GetFeedPostsAnonymous(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/post.PostService/GetFeedPostsAnonymous",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PostServiceServer).GetFeedPostsAnonymous(ctx, req.(*FeedRequestAnonymous))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _PostService_CreateCommentOnPost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CommentRequest)
 	if err := dec(in); err != nil {
@@ -374,6 +406,10 @@ var PostService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetFeedPosts",
 			Handler:    _PostService_GetFeedPosts_Handler,
+		},
+		{
+			MethodName: "GetFeedPostsAnonymous",
+			Handler:    _PostService_GetFeedPostsAnonymous_Handler,
 		},
 		{
 			MethodName: "CreateCommentOnPost",

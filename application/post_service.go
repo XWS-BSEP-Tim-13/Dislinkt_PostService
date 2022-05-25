@@ -133,6 +133,15 @@ func (service *PostService) GetFeedPosts(page int64, usernames []string) (*domai
 	return dto, err
 }
 
+func (service *PostService) GetFeedPostsAnonymous(page int64) (*domain.FeedDto, error) {
+	dto, err := service.store.GetFeedAnonymous(page)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("posts length: %d \n", len(dto.Posts))
+	return dto, err
+}
+
 func (service *PostService) UploadImage(image []byte) (string, error) {
 	filename, err := service.imageStore.UploadObject(image)
 	if err != nil {

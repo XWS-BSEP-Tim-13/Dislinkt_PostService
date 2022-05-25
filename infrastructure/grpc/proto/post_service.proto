@@ -43,6 +43,8 @@ service PostService{
     };
   }
 
+  rpc GetFeedPostsAnonymous(FeedRequestAnonymous)returns(FeedResponse){}
+
   rpc CreateCommentOnPost(CommentRequest) returns(CommentResponse){
     option(google.api.http) = {
       post: "/post/{postId}/comment"
@@ -72,6 +74,9 @@ message ImageResponse{
   string imagePath =1;
 }
 
+message FeedRequestAnonymous{
+  int64 page =1;
+}
 
 message FeedRequest{
   int64 page =1;

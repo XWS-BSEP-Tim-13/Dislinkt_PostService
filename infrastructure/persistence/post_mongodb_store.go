@@ -105,6 +105,28 @@ func (store *PostMongoDBStore) GetFeed(page int64, usernames []string) (*domain.
 	return &dto, nil
 }
 
+func (store *PostMongoDBStore) GetFeedAnonymous(page int64) (*domain.FeedDto, error) {
+	filter := bson.D{}
+	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{"likes", -1}, {"date", -1}})
+	var perPage int64 = 5
+	total, _ := store.posts.CountDocuments(context.TODO(), filter)
+	findOptions.SetSkip((page - 1) * perPage)
+	findOptions.SetLimit(perPage)
+	cursor, err := store.posts.Find(context.TODO(), filter, findOptions)
+	fmt.Printf("Total %d, %f\n", total, math.Ceil(float64(total)/float64(perPage)))
+	if err != nil {
+		return nil, err
+	}
+	posts, _ := decode(cursor)
+	dto := domain.FeedDto{
+		Posts:    posts,
+		Page:     page,
+		LastPage: int64(math.Ceil(float64(total) / float64(perPage))),
+	}
+	return &dto, nil
+}
+
 func decode(cursor *mongo.Cursor) (products []*domain.Post, err error) {
 	for cursor.Next(context.TODO()) {
 		var product domain.Post
