@@ -26,6 +26,8 @@ func NewServer(config *config.Config) *Server {
 }
 
 func (server *Server) Start() {
+	//_ = logger.InitLogger("post-service", context.TODO())
+
 	mongoClient := server.initMongoClient()
 	productStore := server.initPostStore(mongoClient)
 	imageStore := server.initUploadImageStore()

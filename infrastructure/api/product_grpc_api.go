@@ -6,18 +6,21 @@ import (
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/application"
 	pb "github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/infrastructure/grpc/proto"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/jwt"
+	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/logger"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/grpc/status"
 )
 
 type PostHandler struct {
 	pb.UnimplementedPostServiceServer
-	service *application.PostService
+	service     *application.PostService
+	loggerField *logger.Logger
 }
 
 func NewPostHandler(service *application.PostService) *PostHandler {
 	return &PostHandler{
-		service: service,
+		service:     service,
+		loggerField: logger.InitLogger("post-service", context.TODO()),
 	}
 }
 
@@ -97,7 +100,7 @@ func (handler *PostHandler) ReactToPost(ctx context.Context, request *pb.Reactio
 	if err != nil {
 		return nil, err
 	}
-
+	handler.loggerField.InfoMessage("Success")
 	reactionResponse := &pb.ReactionResponse{
 		PostId: postId,
 	}
