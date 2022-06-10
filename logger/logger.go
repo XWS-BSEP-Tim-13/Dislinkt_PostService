@@ -9,13 +9,25 @@ import (
 )
 
 type Logger struct {
-	Logger *logrus.Logger
-	file   *os.File
+	InfoLogger  *logrus.Logger
+	WarnLogger  *logrus.Logger
+	ErrorLogger *logrus.Logger
 }
 
 func InitLogger(logFile string, ctx context.Context) *Logger {
 	logger := &Logger{}
+	logger.InfoLogger = InitLoggerPerLevel(logFile + "-info")
+	logger.WarnLogger = InitLoggerPerLevel(logFile + "-warn")
+	logger.ErrorLogger = InitLoggerPerLevel(logFile + "-error")
 
+	logger.InfoLogger.SetLevel(logrus.InfoLevel)
+	logger.WarnLogger.SetLevel(logrus.WarnLevel)
+	logger.ErrorLogger.SetLevel(logrus.ErrorLevel)
+
+	return &Logger{InfoLogger: logger.InfoLogger, WarnLogger: logger.WarnLogger, ErrorLogger: logger.ErrorLogger}
+}
+
+func InitLoggerPerLevel(logFile string) *logrus.Logger {
 	path := filepath.Join("logs", logFile+".log")
 	file, err := os.Create(path)
 	if err != nil {
@@ -23,29 +35,24 @@ func InitLogger(logFile string, ctx context.Context) *Logger {
 		return nil
 	}
 
-	logger.Logger = logrus.New()
-	logger.Logger.SetOutput(file)
-	logger.Logger.SetFormatter(&logrus.TextFormatter{
+	logger := logrus.New()
+	logger.SetOutput(file)
+	logger.SetFormatter(&logrus.TextFormatter{
 		TimestampFormat: "2006-01-02t15:04:05",
 		FullTimestamp:   true,
 	})
-	logger.Logger.SetLevel(logrus.InfoLevel)
 
-	return &Logger{Logger: logger.Logger, file: logger.file}
-}
-
-func (l *Logger) WarningMessage(message string) {
-	l.Logger.Warning(message)
-}
-
-func (l *Logger) ErrorMessage(message string) {
-	l.Logger.Error(message)
+	return logger
 }
 
 func (l *Logger) InfoMessage(message string) {
-	l.Logger.Info(message)
+	l.InfoLogger.Info(message)
 }
 
-func (l *Logger) FatalMessage(message string) {
-	l.Logger.Fatal(message)
+func (l *Logger) WarningMessage(message string) {
+	l.WarnLogger.Warning(message)
+}
+
+func (l *Logger) ErrorMessage(message string) {
+	l.ErrorLogger.Error(message)
 }

@@ -13,14 +13,14 @@ import (
 
 type PostHandler struct {
 	pb.UnimplementedPostServiceServer
-	service     *application.PostService
-	loggerField *logger.Logger
+	service *application.PostService
+	logger  *logger.Logger
 }
 
 func NewPostHandler(service *application.PostService) *PostHandler {
 	return &PostHandler{
-		service:     service,
-		loggerField: logger.InitLogger("post-service", context.TODO()),
+		service: service,
+		logger:  logger.InitLogger("post-service", context.TODO()),
 	}
 }
 
@@ -100,7 +100,10 @@ func (handler *PostHandler) ReactToPost(ctx context.Context, request *pb.Reactio
 	if err != nil {
 		return nil, err
 	}
-	handler.loggerField.InfoMessage("Success")
+	handler.logger.InfoMessage("Info")
+	handler.logger.WarningMessage("Warning")
+	handler.logger.ErrorMessage("Error")
+
 	reactionResponse := &pb.ReactionResponse{
 		PostId: postId,
 	}
