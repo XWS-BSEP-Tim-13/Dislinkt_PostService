@@ -2,8 +2,8 @@ package application
 
 import (
 	"errors"
-	"fmt"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/domain"
+	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/logger"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/util"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/grpc/status"
@@ -12,12 +12,14 @@ import (
 type PostService struct {
 	store      domain.PostStore
 	imageStore domain.UploadImageStore
+	logger     *logger.Logger
 }
 
-func NewPostService(store domain.PostStore, imageStore domain.UploadImageStore) *PostService {
+func NewPostService(store domain.PostStore, imageStore domain.UploadImageStore, logger *logger.Logger) *PostService {
 	return &PostService{
 		store:      store,
 		imageStore: imageStore,
+		logger:     logger,
 	}
 }
 
@@ -36,9 +38,11 @@ func (service *PostService) GetByUser(username string) ([]*domain.Post, error) {
 func (service *PostService) ReactToPost(reaction *domain.Reaction) (string, error) {
 	post, err := service.Get((*reaction).PostId)
 	if err != nil {
+		service.logger.ErrorMessage("User: " + post.Username + " Action: Post not found")
 		return "", status.Error(500, err.Error())
 	}
 	if post == nil {
+		service.logger.ErrorMessage("User: " + post.Username + " Action: Post not found")
 		return "", status.Error(400, "Post not found!")
 	}
 
@@ -83,11 +87,13 @@ func (service *PostService) ReactToPost(reaction *domain.Reaction) (string, erro
 			(*post).Dislikes = append((*post).Dislikes, (*reaction).Username)
 		}
 	} else {
+		service.logger.ErrorMessage("User: " + post.Username + " Action: Reaction not supported")
 		return "", status.Error(400, "This reaction is not supported!")
 	}
 
 	postID, err := service.store.UpdateReactions(post)
 	if err != nil {
+		service.logger.ErrorMessage("User: " + post.Username + " Action: Update post reaction")
 		return "", status.Error(500, "Error while updating post!")
 	}
 
@@ -129,7 +135,6 @@ func (service *PostService) GetFeedPosts(page int64, usernames []string) (*domai
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("posts length: %d \n", len(dto.Posts))
 	return dto, err
 }
 
@@ -138,7 +143,6 @@ func (service *PostService) GetFeedPostsAnonymous(page int64) (*domain.FeedDto, 
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("posts length: %d \n", len(dto.Posts))
 	return dto, err
 }
 

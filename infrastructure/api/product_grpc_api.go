@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/application"
 	pb "github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/infrastructure/grpc/proto"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/jwt"
@@ -17,10 +16,10 @@ type PostHandler struct {
 	logger  *logger.Logger
 }
 
-func NewPostHandler(service *application.PostService) *PostHandler {
+func NewPostHandler(service *application.PostService, logger *logger.Logger) *PostHandler {
 	return &PostHandler{
 		service: service,
-		logger:  logger.InitLogger("post-service", context.TODO()),
+		logger:  logger,
 	}
 }
 
@@ -32,28 +31,33 @@ func (handler *PostHandler) Get(ctx context.Context, request *pb.GetRequest) (*p
 	}
 	post, err := handler.service.Get(objectId)
 	if err != nil {
+		handler.logger.ErrorMessage("Action: Get post with id: " + id)
 		return nil, err
 	}
 	postPb := mapPostToPb(post)
 	response := &pb.GetResponse{
 		Post: postPb,
 	}
+
+	handler.logger.InfoMessage("Action: Get post with id: " + id)
 	return response, nil
 }
 
 func (handler *PostHandler) GetAll(ctx context.Context, request *pb.GetAllRequest) (*pb.GetAllResponse, error) {
 	posts, err := handler.service.GetAll()
 	if err != nil {
+		handler.logger.ErrorMessage("Action: Get all posts")
 		return nil, err
 	}
 	response := &pb.GetAllResponse{
 		Posts: []*pb.Post{},
 	}
 	for _, post := range posts {
-		fmt.Printf("Image %s\n", post.Image)
 		current := mapPostToPb(post)
 		response.Posts = append(response.Posts, current)
 	}
+
+	handler.logger.InfoMessage("Action: Get all posts")
 	return response, nil
 }
 
@@ -61,6 +65,7 @@ func (handler *PostHandler) GetByUser(ctx context.Context, request *pb.GetByUser
 	username := request.Username
 	posts, err := handler.service.GetByUser(username)
 	if err != nil {
+		handler.logger.ErrorMessage("Action: Get posts by user " + username)
 		return nil, err
 	}
 	response := &pb.GetAllResponse{
@@ -70,55 +75,54 @@ func (handler *PostHandler) GetByUser(ctx context.Context, request *pb.GetByUser
 		current := mapPostToPb(post)
 		response.Posts = append(response.Posts, current)
 	}
+
+	handler.logger.InfoMessage("Action: Get posts by user " + username)
 	return response, nil
 }
 
 func (handler *PostHandler) CreatePost(ctx context.Context, request *pb.NewPostRequest) (*pb.NewPost, error) {
-	fmt.Println((*request).Post)
 	username, _ := jwt.ExtractUsernameFromToken(ctx)
-	fmt.Println(username)
 	post := mapPostDtoPbToDomain(request.Post, username)
-	fmt.Println(post)
 
 	newPost, err := handler.service.CreateNewPost(post)
 	if err != nil {
+		handler.logger.ErrorMessage("User: " + username + " Action: Create post")
 		return nil, status.Error(400, err.Error())
 	}
 
 	response := &pb.NewPost{
 		Post: mapPostToPb(newPost),
 	}
+
+	handler.logger.InfoMessage("User: " + username + " Action: Save post")
 	return response, nil
 }
 
 func (handler *PostHandler) ReactToPost(ctx context.Context, request *pb.ReactionRequest) (*pb.ReactionResponse, error) {
-	fmt.Println(request.Reaction)
+	username, _ := jwt.ExtractUsernameFromToken(ctx)
 	reaction := mapReactionToDomain((*request).Reaction)
-	fmt.Println(reaction)
 
 	postId, err := handler.service.ReactToPost(reaction)
 	if err != nil {
 		return nil, err
 	}
-	handler.logger.InfoMessage("Info")
-	handler.logger.WarningMessage("Warning")
-	handler.logger.ErrorMessage("Error")
 
 	reactionResponse := &pb.ReactionResponse{
 		PostId: postId,
 	}
 
+	handler.logger.InfoMessage("User: " + username + " Action: Post reaction")
 	return reactionResponse, nil
 }
 
 func (handler *PostHandler) CreateCommentOnPost(ctx context.Context, request *pb.CommentRequest) (*pb.CommentResponse, error) {
-	fmt.Println((*request).Comment)
+	username, _ := jwt.ExtractUsernameFromToken(ctx)
 	comment := mapCommentDtoToDomain(request.Comment)
-	fmt.Println(comment)
 	postId := (*request).PostId
 
 	newComment, err := handler.service.CreateNewComment(comment, postId)
 	if err != nil {
+		handler.logger.ErrorMessage("User: " + username + " Action: Create comment")
 		return nil, status.Error(400, err.Error())
 	}
 
@@ -126,14 +130,16 @@ func (handler *PostHandler) CreateCommentOnPost(ctx context.Context, request *pb
 		CommentId: newComment.Id.Hex(),
 	}
 
+	handler.logger.InfoMessage("User: " + username + " Action: Comment created")
 	return response, nil
 }
 
 func (handler *PostHandler) GetFeedPosts(ctx context.Context, request *pb.FeedRequest) (*pb.FeedResponse, error) {
-	fmt.Println("Posts microservice")
+	principal, _ := jwt.ExtractUsernameFromToken(ctx)
 	usernames := mapUsernamesToDomain(request.Usernames)
 	dto, err := handler.service.GetFeedPosts(request.Page, usernames)
 	if err != nil {
+		handler.logger.ErrorMessage("User: " + principal + " Action: Get feed posts")
 		return nil, err
 	}
 	pbPosts := []*pb.Post{}
@@ -146,13 +152,14 @@ func (handler *PostHandler) GetFeedPosts(ctx context.Context, request *pb.FeedRe
 		LastPage: dto.LastPage,
 		Page:     dto.Page,
 	}
+	handler.logger.InfoMessage("User: " + principal + " Action: Get feed posts")
 	return response, nil
 }
 
 func (handler *PostHandler) GetFeedPostsAnonymous(ctx context.Context, request *pb.FeedRequestAnonymous) (*pb.FeedResponse, error) {
-	fmt.Println("Posts microservice anonymous")
 	dto, err := handler.service.GetFeedPostsAnonymous(request.Page)
 	if err != nil {
+		handler.logger.ErrorMessage("Anonymous, Action: Get feed posts")
 		return nil, err
 	}
 	pbPosts := []*pb.Post{}
@@ -165,32 +172,37 @@ func (handler *PostHandler) GetFeedPostsAnonymous(ctx context.Context, request *
 		LastPage: dto.LastPage,
 		Page:     dto.Page,
 	}
+	handler.logger.InfoMessage("Anonymous, Action: Get feed posts")
 	return response, nil
-
 }
 
 func (handler *PostHandler) UploadImage(ctx context.Context, request *pb.ImageRequest) (*pb.ImageResponse, error) {
-	fmt.Println("Upload slike")
+	principal, _ := jwt.ExtractUsernameFromToken(ctx)
 	image := request.Image
 	imagePath, err := handler.service.UploadImage(image)
 	if err != nil {
+		handler.logger.ErrorMessage("User: " + principal + "Action: Image upload")
 		return nil, err
 	}
 	response := &pb.ImageResponse{
 		ImagePath: imagePath,
 	}
+
+	handler.logger.InfoMessage("User: " + principal + "Action: Image upload")
 	return response, nil
 }
 
 func (handler *PostHandler) GetImage(ctx context.Context, request *pb.ImageResponse) (*pb.ImageRequest, error) {
-	fmt.Println("Dobavljanje slike")
+	principal, _ := jwt.ExtractUsernameFromToken(ctx)
 	imagePath := request.ImagePath
 	image, err := handler.service.GetImage(imagePath)
 	if err != nil {
+		handler.logger.ErrorMessage("User: " + principal + "Action: Get image")
 		return nil, err
 	}
 	response := &pb.ImageRequest{
 		Image: image,
 	}
+	handler.logger.InfoMessage("User: " + principal + "Action: Get image")
 	return response, nil
 }

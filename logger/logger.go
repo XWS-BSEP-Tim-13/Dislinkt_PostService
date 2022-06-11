@@ -45,9 +45,8 @@ func InitLoggerPerLevel(logFile string) *logrus.Logger {
 		Compress:   true, // disabled by default
 	})
 
-	logger.SetFormatter(&logrus.TextFormatter{
+	logger.SetFormatter(&logrus.JSONFormatter{
 		TimestampFormat: "2006-01-02t15:04:05",
-		FullTimestamp:   true,
 	})
 
 	return logger
