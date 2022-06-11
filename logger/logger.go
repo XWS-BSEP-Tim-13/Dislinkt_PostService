@@ -3,6 +3,7 @@ package logger
 import (
 	"context"
 	"fmt"
+	"github.com/natefinch/lumberjack"
 	"github.com/sirupsen/logrus"
 	"os"
 	"path/filepath"
@@ -36,7 +37,14 @@ func InitLoggerPerLevel(logFile string) *logrus.Logger {
 	}
 
 	logger := logrus.New()
-	logger.SetOutput(file)
+	logger.SetOutput(&lumberjack.Logger{
+		Filename:   file.Name(),
+		MaxSize:    100, // megabytes
+		MaxBackups: 3,
+		MaxAge:     30,   //days
+		Compress:   true, // disabled by default
+	})
+
 	logger.SetFormatter(&logrus.TextFormatter{
 		TimestampFormat: "2006-01-02t15:04:05",
 		FullTimestamp:   true,
