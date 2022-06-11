@@ -1,12 +1,14 @@
 package startup
 
 import (
+	"context"
 	"fmt"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/application"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/domain"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/infrastructure/api"
 	post "github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/infrastructure/grpc/proto"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/infrastructure/persistence"
+	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/logger"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/startup/config"
 	logg "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -26,12 +28,13 @@ func NewServer(config *config.Config) *Server {
 }
 
 func (server *Server) Start() {
+	logger := logger.InitLogger("post-service", context.TODO())
+
 	mongoClient := server.initMongoClient()
 	productStore := server.initPostStore(mongoClient)
 	imageStore := server.initUploadImageStore()
-	productService := server.initPostService(productStore, imageStore)
-
-	productHandler := server.initPostHandler(productService)
+	productService := server.initPostService(productStore, imageStore, logger)
+	productHandler := server.initPostHandler(productService, logger)
 
 	server.startGrpcServer(productHandler)
 }
@@ -62,12 +65,12 @@ func (server *Server) initUploadImageStore() domain.UploadImageStore {
 	return imageStore
 }
 
-func (server *Server) initPostService(store domain.PostStore, imageStore domain.UploadImageStore) *application.PostService {
-	return application.NewPostService(store, imageStore)
+func (server *Server) initPostService(store domain.PostStore, imageStore domain.UploadImageStore, logger *logger.Logger) *application.PostService {
+	return application.NewPostService(store, imageStore, logger)
 }
 
-func (server *Server) initPostHandler(service *application.PostService) *api.PostHandler {
-	return api.NewPostHandler(service)
+func (server *Server) initPostHandler(service *application.PostService, logger *logger.Logger) *api.PostHandler {
+	return api.NewPostHandler(service, logger)
 }
 
 func (server *Server) startGrpcServer(postHandler *api.PostHandler) {
