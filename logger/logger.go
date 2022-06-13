@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/natefinch/lumberjack"
 	"github.com/sirupsen/logrus"
+	easy "github.com/t-tomalak/logrus-easy-formatter"
 	"os"
 	"path/filepath"
 )
@@ -45,8 +46,9 @@ func InitLoggerPerLevel(logFile string) *logrus.Logger {
 		Compress:   true, // disabled by default
 	})
 
-	logger.SetFormatter(&logrus.JSONFormatter{
-		TimestampFormat: "2006-01-02t15:04:05",
+	logger.SetFormatter(&easy.Formatter{
+		TimestampFormat: "2006-01-02 15:04:05",
+		LogFormat:       "[%lvl%] %time% | %msg% \n",
 	})
 
 	return logger
