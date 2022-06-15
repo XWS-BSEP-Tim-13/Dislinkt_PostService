@@ -38,11 +38,11 @@ func (service *PostService) GetByUser(username string) ([]*domain.Post, error) {
 func (service *PostService) ReactToPost(reaction *domain.Reaction) (string, error) {
 	post, err := service.Get((*reaction).PostId)
 	if err != nil {
-		service.logger.ErrorMessage("User: " + post.Username + " Action: Post not found")
+		service.logger.ErrorMessage("User: " + post.Username + " Action: PNF")
 		return "", status.Error(500, err.Error())
 	}
 	if post == nil {
-		service.logger.ErrorMessage("User: " + post.Username + " Action: Post not found")
+		service.logger.ErrorMessage("User: " + post.Username + " Action: PNF")
 		return "", status.Error(400, "Post not found!")
 	}
 
@@ -87,13 +87,13 @@ func (service *PostService) ReactToPost(reaction *domain.Reaction) (string, erro
 			(*post).Dislikes = append((*post).Dislikes, (*reaction).Username)
 		}
 	} else {
-		service.logger.ErrorMessage("User: " + post.Username + " Action: Reaction not supported")
+		service.logger.ErrorMessage("User: " + post.Username + " Action: RNS")
 		return "", status.Error(400, "This reaction is not supported!")
 	}
 
 	postID, err := service.store.UpdateReactions(post)
 	if err != nil {
-		service.logger.ErrorMessage("User: " + post.Username + " Action: Update post reaction")
+		service.logger.ErrorMessage("User: " + post.Username + " Action: UPR")
 		return "", status.Error(500, "Error while updating post!")
 	}
 

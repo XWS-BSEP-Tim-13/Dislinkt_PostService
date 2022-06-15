@@ -31,7 +31,7 @@ func (handler *PostHandler) Get(ctx context.Context, request *pb.GetRequest) (*p
 	}
 	post, err := handler.service.Get(objectId)
 	if err != nil {
-		handler.logger.ErrorMessage("Action: Get post with id: " + id)
+		handler.logger.ErrorMessage("Action: GP/ " + id)
 		return nil, err
 	}
 	postPb := mapPostToPb(post)
@@ -39,14 +39,14 @@ func (handler *PostHandler) Get(ctx context.Context, request *pb.GetRequest) (*p
 		Post: postPb,
 	}
 
-	handler.logger.InfoMessage("Action: Get post with id: " + id)
+	handler.logger.InfoMessage("Action: Get GP/ " + id)
 	return response, nil
 }
 
 func (handler *PostHandler) GetAll(ctx context.Context, request *pb.GetAllRequest) (*pb.GetAllResponse, error) {
 	posts, err := handler.service.GetAll()
 	if err != nil {
-		handler.logger.ErrorMessage("Action: Get all posts")
+		handler.logger.ErrorMessage("Action: GP")
 		return nil, err
 	}
 	response := &pb.GetAllResponse{
@@ -57,7 +57,7 @@ func (handler *PostHandler) GetAll(ctx context.Context, request *pb.GetAllReques
 		response.Posts = append(response.Posts, current)
 	}
 
-	handler.logger.InfoMessage("Action: Get all posts")
+	handler.logger.InfoMessage("Action: GP")
 	return response, nil
 }
 
@@ -65,7 +65,7 @@ func (handler *PostHandler) GetByUser(ctx context.Context, request *pb.GetByUser
 	username := request.Username
 	posts, err := handler.service.GetByUser(username)
 	if err != nil {
-		handler.logger.ErrorMessage("Action: Get posts by user " + username)
+		handler.logger.ErrorMessage("Action: GP/" + username)
 		return nil, err
 	}
 	response := &pb.GetAllResponse{
@@ -76,7 +76,7 @@ func (handler *PostHandler) GetByUser(ctx context.Context, request *pb.GetByUser
 		response.Posts = append(response.Posts, current)
 	}
 
-	handler.logger.InfoMessage("Action: Get posts by user " + username)
+	handler.logger.InfoMessage("Action: GP/ " + username)
 	return response, nil
 }
 
@@ -86,7 +86,7 @@ func (handler *PostHandler) CreatePost(ctx context.Context, request *pb.NewPostR
 
 	newPost, err := handler.service.CreateNewPost(post)
 	if err != nil {
-		handler.logger.ErrorMessage("User: " + username + " | Action: Create post")
+		handler.logger.ErrorMessage("User: " + username + " | Action: CP")
 		return nil, status.Error(400, err.Error())
 	}
 
@@ -94,7 +94,7 @@ func (handler *PostHandler) CreatePost(ctx context.Context, request *pb.NewPostR
 		Post: mapPostToPb(newPost),
 	}
 
-	handler.logger.InfoMessage("User: " + username + " | Action: Create post")
+	handler.logger.InfoMessage("User: " + username + " | Action: CP")
 	return response, nil
 }
 
@@ -111,7 +111,7 @@ func (handler *PostHandler) ReactToPost(ctx context.Context, request *pb.Reactio
 		PostId: postId,
 	}
 
-	handler.logger.InfoMessage("User: " + username + " | Action: Post reaction")
+	handler.logger.InfoMessage("User: " + username + " | Action: RoP")
 	return reactionResponse, nil
 }
 
@@ -122,7 +122,7 @@ func (handler *PostHandler) CreateCommentOnPost(ctx context.Context, request *pb
 
 	newComment, err := handler.service.CreateNewComment(comment, postId)
 	if err != nil {
-		handler.logger.ErrorMessage("User: " + username + " | Action: Create comment")
+		handler.logger.ErrorMessage("User: " + username + " | Action: CoP")
 		return nil, status.Error(400, err.Error())
 	}
 
@@ -130,7 +130,7 @@ func (handler *PostHandler) CreateCommentOnPost(ctx context.Context, request *pb
 		CommentId: newComment.Id.Hex(),
 	}
 
-	handler.logger.InfoMessage("User: " + username + " | Action: Create comment")
+	handler.logger.InfoMessage("User: " + username + " | Action: CoP")
 	return response, nil
 }
 
@@ -139,7 +139,7 @@ func (handler *PostHandler) GetFeedPosts(ctx context.Context, request *pb.FeedRe
 	usernames := mapUsernamesToDomain(request.Usernames)
 	dto, err := handler.service.GetFeedPosts(request.Page, usernames)
 	if err != nil {
-		handler.logger.ErrorMessage("User: " + principal + " | Action: Get feed posts")
+		handler.logger.ErrorMessage("User: " + principal + " | Action: GFP")
 		return nil, err
 	}
 	pbPosts := []*pb.Post{}
@@ -152,14 +152,14 @@ func (handler *PostHandler) GetFeedPosts(ctx context.Context, request *pb.FeedRe
 		LastPage: dto.LastPage,
 		Page:     dto.Page,
 	}
-	handler.logger.InfoMessage("User: " + principal + " | Action: Get feed posts")
+	handler.logger.InfoMessage("User: " + principal + " | Action: GFP")
 	return response, nil
 }
 
 func (handler *PostHandler) GetFeedPostsAnonymous(ctx context.Context, request *pb.FeedRequestAnonymous) (*pb.FeedResponse, error) {
 	dto, err := handler.service.GetFeedPostsAnonymous(request.Page)
 	if err != nil {
-		handler.logger.ErrorMessage("User: Anonymous | Action: Get feed posts")
+		handler.logger.ErrorMessage("User: Anonymous | Action: GFP")
 		return nil, err
 	}
 	pbPosts := []*pb.Post{}
@@ -172,7 +172,7 @@ func (handler *PostHandler) GetFeedPostsAnonymous(ctx context.Context, request *
 		LastPage: dto.LastPage,
 		Page:     dto.Page,
 	}
-	handler.logger.InfoMessage("User: Anonymous | Action: Get feed posts")
+	handler.logger.InfoMessage("User: Anonymous | Action: GFP")
 	return response, nil
 }
 
@@ -181,14 +181,14 @@ func (handler *PostHandler) UploadImage(ctx context.Context, request *pb.ImageRe
 	image := request.Image
 	imagePath, err := handler.service.UploadImage(image)
 	if err != nil {
-		handler.logger.ErrorMessage("User: " + principal + " | Action: Image upload")
+		handler.logger.ErrorMessage("User: " + principal + " | Action: ImgU")
 		return nil, err
 	}
 	response := &pb.ImageResponse{
 		ImagePath: imagePath,
 	}
 
-	handler.logger.InfoMessage("User: " + principal + " | Action: Image upload")
+	handler.logger.InfoMessage("User: " + principal + " | Action: ImgU")
 	return response, nil
 }
 
@@ -197,12 +197,12 @@ func (handler *PostHandler) GetImage(ctx context.Context, request *pb.ImageRespo
 	imagePath := request.ImagePath
 	image, err := handler.service.GetImage(imagePath)
 	if err != nil {
-		handler.logger.ErrorMessage("User: " + principal + " | Action: Get image")
+		handler.logger.ErrorMessage("User: " + principal + " | Action: GImg")
 		return nil, err
 	}
 	response := &pb.ImageRequest{
 		Image: image,
 	}
-	handler.logger.InfoMessage("User: " + principal + " | Action: Get image")
+	handler.logger.InfoMessage("User: " + principal + " | Action: GImg")
 	return response, nil
 }
