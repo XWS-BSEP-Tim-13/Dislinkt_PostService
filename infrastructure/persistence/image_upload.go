@@ -18,7 +18,7 @@ var (
 )
 
 const (
-	BUCKET_NAME = "dislinktt"
+	BUCKET_NAME = "dislinkt"
 	REGION      = "eu-central-1"
 )
 

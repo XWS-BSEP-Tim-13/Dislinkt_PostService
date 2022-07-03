@@ -2,6 +2,7 @@ package application
 
 import (
 	"errors"
+	"fmt"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/domain"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/logger"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/util"
@@ -139,6 +140,7 @@ func (service *PostService) GetFeedPosts(page int64, usernames []string) (*domai
 }
 
 func (service *PostService) GetFeedPostsAnonymous(page int64) (*domain.FeedDto, error) {
+	fmt.Println("Posts anonymus ", page)
 	dto, err := service.store.GetFeedAnonymous(page)
 	if err != nil {
 		return nil, err

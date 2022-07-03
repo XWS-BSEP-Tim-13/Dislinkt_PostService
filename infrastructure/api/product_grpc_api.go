@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/application"
+	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/domain"
 	pb "github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/infrastructure/grpc/proto"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/jwt"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/logger"
@@ -137,7 +138,13 @@ func (handler *PostHandler) CreateCommentOnPost(ctx context.Context, request *pb
 func (handler *PostHandler) GetFeedPosts(ctx context.Context, request *pb.FeedRequest) (*pb.FeedResponse, error) {
 	principal, _ := jwt.ExtractUsernameFromToken(ctx)
 	usernames := mapUsernamesToDomain(request.Usernames)
-	dto, err := handler.service.GetFeedPosts(request.Page, usernames)
+	var dto *domain.FeedDto
+	var err error
+	if len(usernames) == 0 {
+		dto, err = handler.service.GetFeedPostsAnonymous(request.Page)
+	} else {
+		dto, err = handler.service.GetFeedPosts(request.Page, usernames)
+	}
 	if err != nil {
 		handler.logger.ErrorMessage("User: " + principal + " | Action: GFP")
 		return nil, err
