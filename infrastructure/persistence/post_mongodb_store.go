@@ -65,6 +65,12 @@ func (store *PostMongoDBStore) filter(filter interface{}) ([]*domain.Post, error
 	return decode(cursor)
 }
 
+func (store *PostMongoDBStore) Delete(id primitive.ObjectID) error {
+	filter := bson.M{"_id": id}
+	_, err := store.posts.DeleteOne(context.TODO(), filter)
+	return err
+}
+
 func (store *PostMongoDBStore) filterOne(filter interface{}) (product *domain.Post, err error) {
 	result := store.posts.FindOne(context.TODO(), filter)
 	err = result.Decode(&product)

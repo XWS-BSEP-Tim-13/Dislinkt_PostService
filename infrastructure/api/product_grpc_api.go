@@ -135,6 +135,16 @@ func (handler *PostHandler) CreateCommentOnPost(ctx context.Context, request *pb
 	return response, nil
 }
 
+func (handler *PostHandler) DeletePost(ctx context.Context, requset *pb.GetRequest) (*pb.GetAllRequest, error) {
+	id, _ := primitive.ObjectIDFromHex(requset.Id)
+	err := handler.service.Delete(id)
+	if err != nil {
+		return nil, err
+	}
+	response := &pb.GetAllRequest{}
+	return response, nil
+}
+
 func (handler *PostHandler) GetFeedPosts(ctx context.Context, request *pb.FeedRequest) (*pb.FeedResponse, error) {
 	principal, _ := jwt.ExtractUsernameFromToken(ctx)
 	usernames := mapUsernamesToDomain(request.Usernames)

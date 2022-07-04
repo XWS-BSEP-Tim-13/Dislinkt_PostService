@@ -13,4 +13,5 @@ type PostStore interface {
 	UpdateReactions(post *Post) (string, error)
 	GetFeed(page int64, usernames []string) (*FeedDto, error)
 	GetFeedAnonymous(page int64) (*FeedDto, error)
+	Delete(id primitive.ObjectID) error
 }

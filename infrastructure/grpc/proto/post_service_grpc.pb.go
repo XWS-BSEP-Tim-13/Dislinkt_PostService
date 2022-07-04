@@ -25,6 +25,7 @@ type PostServiceClient interface {
 	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetResponse, error)
 	GetAll(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (*GetAllResponse, error)
 	GetByUser(ctx context.Context, in *GetByUserRequest, opts ...grpc.CallOption) (*GetAllResponse, error)
+	DeletePost(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetAllRequest, error)
 	CreatePost(ctx context.Context, in *NewPostRequest, opts ...grpc.CallOption) (*NewPost, error)
 	ReactToPost(ctx context.Context, in *ReactionRequest, opts ...grpc.CallOption) (*ReactionResponse, error)
 	GetFeedPosts(ctx context.Context, in *FeedRequest, opts ...grpc.CallOption) (*FeedResponse, error)
@@ -63,6 +64,15 @@ func (c *postServiceClient) GetAll(ctx context.Context, in *GetAllRequest, opts 
 func (c *postServiceClient) GetByUser(ctx context.Context, in *GetByUserRequest, opts ...grpc.CallOption) (*GetAllResponse, error) {
 	out := new(GetAllResponse)
 	err := c.cc.Invoke(ctx, "/post.PostService/GetByUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *postServiceClient) DeletePost(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetAllRequest, error) {
+	out := new(GetAllRequest)
+	err := c.cc.Invoke(ctx, "/post.PostService/DeletePost", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -139,6 +149,7 @@ type PostServiceServer interface {
 	Get(context.Context, *GetRequest) (*GetResponse, error)
 	GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error)
 	GetByUser(context.Context, *GetByUserRequest) (*GetAllResponse, error)
+	DeletePost(context.Context, *GetRequest) (*GetAllRequest, error)
 	CreatePost(context.Context, *NewPostRequest) (*NewPost, error)
 	ReactToPost(context.Context, *ReactionRequest) (*ReactionResponse, error)
 	GetFeedPosts(context.Context, *FeedRequest) (*FeedResponse, error)
@@ -161,6 +172,9 @@ func (UnimplementedPostServiceServer) GetAll(context.Context, *GetAllRequest) (*
 }
 func (UnimplementedPostServiceServer) GetByUser(context.Context, *GetByUserRequest) (*GetAllResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetByUser not implemented")
+}
+func (UnimplementedPostServiceServer) DeletePost(context.Context, *GetRequest) (*GetAllRequest, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeletePost not implemented")
 }
 func (UnimplementedPostServiceServer) CreatePost(context.Context, *NewPostRequest) (*NewPost, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreatePost not implemented")
@@ -246,6 +260,24 @@ func _PostService_GetByUser_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(PostServiceServer).GetByUser(ctx, req.(*GetByUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PostService_DeletePost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PostServiceServer).DeletePost(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/post.PostService/DeletePost",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PostServiceServer).DeletePost(ctx, req.(*GetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -394,6 +426,10 @@ var PostService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetByUser",
 			Handler:    _PostService_GetByUser_Handler,
+		},
+		{
+			MethodName: "DeletePost",
+			Handler:    _PostService_DeletePost_Handler,
 		},
 		{
 			MethodName: "CreatePost",

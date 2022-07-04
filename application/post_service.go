@@ -130,6 +130,10 @@ func (service *PostService) CreateNewComment(comment *domain.Comment, postId str
 	return comment, nil
 }
 
+func (service *PostService) Delete(id primitive.ObjectID) error {
+	service.store.Delete(id)
+}
+
 func (service *PostService) GetFeedPosts(page int64, usernames []string) (*domain.FeedDto, error) {
 	dto, err := service.store.GetFeed(page, usernames)
 	if err != nil {

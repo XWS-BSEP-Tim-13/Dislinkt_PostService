@@ -23,6 +23,13 @@ service PostService{
       get: "/post/user/{username}"
     };
   }
+
+  rpc DeletePost(GetRequest) returns (GetAllRequest){
+    option(google.api.http) = {
+      delete: "/post/{id}"
+    };
+  }
+
   rpc CreatePost(NewPostRequest) returns(NewPost) {
     option(google.api.http) = {
       post: "/post"
