@@ -153,6 +153,8 @@ message Reaction {
 message PostDto {
   string content = 1;
   string image   = 2;
+  google.protobuf.Timestamp date = 3;
+  string id = 4;
 }
 
 message Post {

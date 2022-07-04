@@ -102,7 +102,6 @@ func (service *PostService) ReactToPost(reaction *domain.Reaction) (string, erro
 }
 
 func (service *PostService) CreateNewPost(post *domain.Post) (*domain.Post, error) {
-	(*post).Id = primitive.NewObjectID()
 	err := service.store.Insert(post)
 	if err != nil {
 		err := errors.New("error while creating new post")

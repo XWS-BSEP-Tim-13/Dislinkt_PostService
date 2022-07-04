@@ -39,6 +39,7 @@ func mapUsernamesToDomain(usernamesPb *pb.Usernames) []string {
 }
 
 func mapPostDtoPbToDomain(postPb *pb.PostDto, username string) *domain.Post {
+	postId, _ := primitive.ObjectIDFromHex((*postPb).Id)
 	post := &domain.Post{
 		Username: username,
 		Content:  (*postPb).Content,
@@ -47,6 +48,7 @@ func mapPostDtoPbToDomain(postPb *pb.PostDto, username string) *domain.Post {
 		Likes:    []string{},
 		Dislikes: []string{},
 		Comments: []domain.Comment{},
+		Id:       postId,
 	}
 	return post
 }
