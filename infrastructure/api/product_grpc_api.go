@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/application"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/domain"
 	pb "github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/infrastructure/grpc/proto"
@@ -139,6 +140,7 @@ func (handler *PostHandler) DeletePost(ctx context.Context, requset *pb.GetReque
 	id, _ := primitive.ObjectIDFromHex(requset.Id)
 	err := handler.service.Delete(id)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 	response := &pb.GetAllRequest{}
