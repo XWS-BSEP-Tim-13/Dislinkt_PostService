@@ -8,6 +8,7 @@ import (
 	pb "github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/infrastructure/grpc/proto"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/jwt"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/logger"
+	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/tracer"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/grpc/status"
 )
@@ -26,12 +27,17 @@ func NewPostHandler(service *application.PostService, logger *logger.Logger) *Po
 }
 
 func (handler *PostHandler) Get(ctx context.Context, request *pb.GetRequest) (*pb.GetResponse, error) {
+	span := tracer.StartSpanFromContext(ctx, "API Get")
+	defer span.Finish()
+
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	id := request.Id
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, err
 	}
-	post, err := handler.service.Get(objectId)
+	post, err := handler.service.Get(ctx, objectId)
 	if err != nil {
 		handler.logger.ErrorMessage("Action: GP/ " + id)
 		return nil, err
@@ -46,7 +52,12 @@ func (handler *PostHandler) Get(ctx context.Context, request *pb.GetRequest) (*p
 }
 
 func (handler *PostHandler) GetAll(ctx context.Context, request *pb.GetAllRequest) (*pb.GetAllResponse, error) {
-	posts, err := handler.service.GetAll()
+	span := tracer.StartSpanFromContext(ctx, "API GetAll")
+	defer span.Finish()
+
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	posts, err := handler.service.GetAll(ctx)
 	if err != nil {
 		handler.logger.ErrorMessage("Action: GP")
 		return nil, err
@@ -64,8 +75,13 @@ func (handler *PostHandler) GetAll(ctx context.Context, request *pb.GetAllReques
 }
 
 func (handler *PostHandler) GetByUser(ctx context.Context, request *pb.GetByUserRequest) (*pb.GetAllResponse, error) {
+	span := tracer.StartSpanFromContext(ctx, "API GetByUser")
+	defer span.Finish()
+
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	username := request.Username
-	posts, err := handler.service.GetByUser(username)
+	posts, err := handler.service.GetByUser(ctx, username)
 	if err != nil {
 		handler.logger.ErrorMessage("Action: GP/" + username)
 		return nil, err
@@ -83,10 +99,15 @@ func (handler *PostHandler) GetByUser(ctx context.Context, request *pb.GetByUser
 }
 
 func (handler *PostHandler) CreatePost(ctx context.Context, request *pb.NewPostRequest) (*pb.NewPost, error) {
+	span := tracer.StartSpanFromContext(ctx, "API CreatePost")
+	defer span.Finish()
+
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	username, _ := jwt.ExtractUsernameFromToken(ctx)
 	post := mapPostDtoPbToDomain(request.Post, username)
 
-	newPost, err := handler.service.CreateNewPost(post)
+	newPost, err := handler.service.CreateNewPost(ctx, post)
 	if err != nil {
 		handler.logger.ErrorMessage("User: " + username + " | Action: CP")
 		return nil, status.Error(400, err.Error())
@@ -101,10 +122,15 @@ func (handler *PostHandler) CreatePost(ctx context.Context, request *pb.NewPostR
 }
 
 func (handler *PostHandler) ReactToPost(ctx context.Context, request *pb.ReactionRequest) (*pb.ReactionResponse, error) {
+	span := tracer.StartSpanFromContext(ctx, "API ReactToPost")
+	defer span.Finish()
+
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	username, _ := jwt.ExtractUsernameFromToken(ctx)
 	reaction := mapReactionToDomain((*request).Reaction)
 
-	postId, err := handler.service.ReactToPost(reaction)
+	postId, err := handler.service.ReactToPost(ctx, reaction)
 	if err != nil {
 		return nil, err
 	}
@@ -118,11 +144,16 @@ func (handler *PostHandler) ReactToPost(ctx context.Context, request *pb.Reactio
 }
 
 func (handler *PostHandler) CreateCommentOnPost(ctx context.Context, request *pb.CommentRequest) (*pb.CommentResponse, error) {
+	span := tracer.StartSpanFromContext(ctx, "API CreateCommentOnPost")
+	defer span.Finish()
+
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	username, _ := jwt.ExtractUsernameFromToken(ctx)
 	comment := mapCommentDtoToDomain(request.Comment)
 	postId := (*request).PostId
 
-	newComment, err := handler.service.CreateNewComment(comment, postId)
+	newComment, err := handler.service.CreateNewComment(ctx, comment, postId)
 	if err != nil {
 		handler.logger.ErrorMessage("User: " + username + " | Action: CoP")
 		return nil, status.Error(400, err.Error())
@@ -137,8 +168,13 @@ func (handler *PostHandler) CreateCommentOnPost(ctx context.Context, request *pb
 }
 
 func (handler *PostHandler) DeletePost(ctx context.Context, requset *pb.GetRequest) (*pb.GetAllRequest, error) {
+	span := tracer.StartSpanFromContext(ctx, "API DeletePost")
+	defer span.Finish()
+
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	id, _ := primitive.ObjectIDFromHex(requset.Id)
-	err := handler.service.Delete(id)
+	err := handler.service.Delete(ctx, id)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -148,14 +184,19 @@ func (handler *PostHandler) DeletePost(ctx context.Context, requset *pb.GetReque
 }
 
 func (handler *PostHandler) GetFeedPosts(ctx context.Context, request *pb.FeedRequest) (*pb.FeedResponse, error) {
+	span := tracer.StartSpanFromContext(ctx, "API GetFeedPosts")
+	defer span.Finish()
+
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	principal, _ := jwt.ExtractUsernameFromToken(ctx)
 	usernames := mapUsernamesToDomain(request.Usernames)
 	var dto *domain.FeedDto
 	var err error
 	if len(usernames) == 0 {
-		dto, err = handler.service.GetFeedPostsAnonymous(request.Page)
+		dto, err = handler.service.GetFeedPostsAnonymous(ctx, request.Page)
 	} else {
-		dto, err = handler.service.GetFeedPosts(request.Page, usernames)
+		dto, err = handler.service.GetFeedPosts(ctx, request.Page, usernames)
 	}
 	if err != nil {
 		handler.logger.ErrorMessage("User: " + principal + " | Action: GFP")
@@ -176,7 +217,12 @@ func (handler *PostHandler) GetFeedPosts(ctx context.Context, request *pb.FeedRe
 }
 
 func (handler *PostHandler) GetFeedPostsAnonymous(ctx context.Context, request *pb.FeedRequestAnonymous) (*pb.FeedResponse, error) {
-	dto, err := handler.service.GetFeedPostsAnonymous(request.Page)
+	span := tracer.StartSpanFromContext(ctx, "API GetFeedPostsAnonymous")
+	defer span.Finish()
+
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	dto, err := handler.service.GetFeedPostsAnonymous(ctx, request.Page)
 	if err != nil {
 		handler.logger.ErrorMessage("User: Anonymous | Action: GFP")
 		return nil, err
@@ -196,9 +242,14 @@ func (handler *PostHandler) GetFeedPostsAnonymous(ctx context.Context, request *
 }
 
 func (handler *PostHandler) UploadImage(ctx context.Context, request *pb.ImageRequest) (*pb.ImageResponse, error) {
+	span := tracer.StartSpanFromContext(ctx, "API UploadImage")
+	defer span.Finish()
+
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	principal, _ := jwt.ExtractUsernameFromToken(ctx)
 	image := request.Image
-	imagePath, err := handler.service.UploadImage(image)
+	imagePath, err := handler.service.UploadImage(ctx, image)
 	if err != nil {
 		handler.logger.ErrorMessage("User: " + principal + " | Action: ImgU")
 		return nil, err
@@ -212,9 +263,14 @@ func (handler *PostHandler) UploadImage(ctx context.Context, request *pb.ImageRe
 }
 
 func (handler *PostHandler) GetImage(ctx context.Context, request *pb.ImageResponse) (*pb.ImageRequest, error) {
+	span := tracer.StartSpanFromContext(ctx, "API GetImage")
+	defer span.Finish()
+
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	principal, _ := jwt.ExtractUsernameFromToken(ctx)
 	imagePath := request.ImagePath
-	image, err := handler.service.GetImage(imagePath)
+	image, err := handler.service.GetImage(ctx, imagePath)
 	if err != nil {
 		handler.logger.ErrorMessage("User: " + principal + " | Action: GImg")
 		return nil, err
