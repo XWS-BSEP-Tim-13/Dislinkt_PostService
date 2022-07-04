@@ -66,9 +66,9 @@ func (server *Server) initMongoClient() *mongo.Client {
 
 func (server *Server) initPostStore(client *mongo.Client) domain.PostStore {
 	store := persistence.NewPostMongoDBStore(client)
-	store.DeleteAll()
+	store.DeleteAll(context.TODO())
 	for _, post := range posts {
-		err := store.Insert(post)
+		err := store.Insert(context.TODO(), post)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -78,7 +78,7 @@ func (server *Server) initPostStore(client *mongo.Client) domain.PostStore {
 
 func (server *Server) initUploadImageStore() domain.UploadImageStore {
 	imageStore := persistence.NewUploadImageStore(server.config.SecretAccessKey, server.config.AccessKey)
-	imageStore.Start()
+	imageStore.Start(context.TODO())
 	return imageStore
 }
 
