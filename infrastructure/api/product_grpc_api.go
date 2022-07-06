@@ -83,12 +83,10 @@ func (handler *PostHandler) GetByUser(ctx context.Context, request *pb.GetByUser
 }
 
 func (handler *PostHandler) CreatePost(ctx context.Context, request *pb.NewPostRequest) (*pb.NewPost, error) {
-	username, _ := jwt.ExtractUsernameFromToken(ctx)
-	post := mapPostDtoPbToDomain(request.Post, username)
-
+	post := mapPostDtoPbToDomain(request.Post)
 	newPost, err := handler.service.CreateNewPost(post)
 	if err != nil {
-		handler.logger.ErrorMessage("User: " + username + " | Action: CP")
+		handler.logger.ErrorMessage("User: " + post.Username + " | Action: CP")
 		return nil, status.Error(400, err.Error())
 	}
 
@@ -96,7 +94,7 @@ func (handler *PostHandler) CreatePost(ctx context.Context, request *pb.NewPostR
 		Post: mapPostToPb(newPost),
 	}
 
-	handler.logger.InfoMessage("User: " + username + " | Action: CP")
+	handler.logger.InfoMessage("User: " + post.Username + " | Action: CP")
 	return response, nil
 }
 

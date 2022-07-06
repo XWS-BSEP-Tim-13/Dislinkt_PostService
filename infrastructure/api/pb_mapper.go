@@ -38,10 +38,10 @@ func mapUsernamesToDomain(usernamesPb *pb.Usernames) []string {
 	return usernames
 }
 
-func mapPostDtoPbToDomain(postPb *pb.PostDto, username string) *domain.Post {
+func mapPostDtoPbToDomain(postPb *pb.PostDto) *domain.Post {
 	postId, _ := primitive.ObjectIDFromHex((*postPb).Id)
 	post := &domain.Post{
-		Username: username,
+		Username: postPb.Username,
 		Content:  (*postPb).Content,
 		Image:    (*postPb).Image,
 		Date:     time.Now(),
