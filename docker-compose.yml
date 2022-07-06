@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+    post_service:
+        image: post_service
+        container_name: post_service
+        build:
+            context: .
+            dockerfile: ./Dockerfile
+        restart: on-failure
+        environment:
+            POST_DB_HOST: post_db
+            POST_DB_PORT: 27017
+            POST_SERVICE_PORT: 8000
+        ports:
+            - "8000:8000"
+        depends_on:
+            - post_db
+        networks:
+            - network
+
+    post_db:
+        image: mongo
+        container_name: post_db
+        restart: on-failure
+        ports:
+            - "27017:27017"
+        networks:
+            - network
+
+    mongo-express:
+        image: mongo-express
+        restart: always
+        ports:
+            - "8081:8081"
+        environment:
+            ME_CONFIG_MONGODB_URL: mongodb://post_db:27017/
+        depends_on:
+            - post_service
+        networks:
+            - network
+
+networks:
+  network:
+    driver: bridge
