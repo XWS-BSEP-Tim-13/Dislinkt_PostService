@@ -11,16 +11,18 @@ import (
 )
 
 type PostService struct {
-	store      domain.PostStore
-	imageStore domain.UploadImageStore
-	logger     *logger.Logger
+	store        domain.PostStore
+	imageStore   domain.UploadImageStore
+	logger       *logger.Logger
+	messageStore domain.MessageStore
 }
 
-func NewPostService(store domain.PostStore, imageStore domain.UploadImageStore, logger *logger.Logger) *PostService {
+func NewPostService(store domain.PostStore, imageStore domain.UploadImageStore, logger *logger.Logger, messageStore domain.MessageStore) *PostService {
 	return &PostService{
-		store:      store,
-		imageStore: imageStore,
-		logger:     logger,
+		store:        store,
+		imageStore:   imageStore,
+		logger:       logger,
+		messageStore: messageStore,
 	}
 }
 
@@ -163,4 +165,25 @@ func (service *PostService) UploadImage(image []byte) (string, error) {
 func (service *PostService) GetImage(imagePath string) ([]byte, error) {
 	image := service.imageStore.GetObject(imagePath)
 	return image, nil
+}
+
+func (service *PostService) GetMessagesByUsers(firstUsername, secondUsername string) (*domain.MessageUsers, error) {
+	messages, err := service.messageStore.GetByUsers(firstUsername, secondUsername)
+	if err != nil {
+		messages = &domain.MessageUsers{
+			Id:         primitive.NewObjectID(),
+			FirstUser:  firstUsername,
+			SecondUser: secondUsername,
+			Messages:   []domain.Message{},
+		}
+		err = service.messageStore.Insert(messages)
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+	}
+	return messages, nil
+}
+func (service *PostService) SaveMessage(message *domain.Message) error {
+	return service.messageStore.SendMessage(message)
 }

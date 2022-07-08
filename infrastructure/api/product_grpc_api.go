@@ -223,3 +223,26 @@ func (handler *PostHandler) GetImage(ctx context.Context, request *pb.ImageRespo
 	handler.logger.InfoMessage("User: " + principal + " | Action: GImg")
 	return response, nil
 }
+
+func (handler *PostHandler) GetMessagesForUser(ctx context.Context, request *pb.GetByUserRequest) (*pb.MessageResponse, error) {
+	principal, _ := jwt.ExtractUsernameFromToken(ctx)
+	messages, err := handler.service.GetMessagesByUsers(request.Username, principal)
+	if err != nil {
+		return nil, err
+	}
+
+	response := &pb.MessageResponse{
+		Messages: mapMessagesToPb(messages),
+	}
+	return response, nil
+}
+
+func (handler *PostHandler) SaveMessage(ctx context.Context, request *pb.SaveMessageRequest) (*pb.GetAllRequest, error) {
+	message := mapMessagePbToDomain(request.Message)
+	err := handler.service.SaveMessage(message)
+	if err != nil {
+		return nil, err
+	}
+	response := &pb.GetAllRequest{}
+	return response, nil
+}

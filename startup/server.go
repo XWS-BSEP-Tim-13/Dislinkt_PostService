@@ -38,8 +38,9 @@ func (server *Server) Start() {
 
 	mongoClient := server.initMongoClient()
 	productStore := server.initPostStore(mongoClient)
+	messageStore := server.initMessageStore(mongoClient)
 	imageStore := server.initUploadImageStore()
-	productService := server.initPostService(productStore, imageStore, logger)
+	productService := server.initPostService(productStore, imageStore, logger, messageStore)
 	productHandler := server.initPostHandler(productService, logger)
 
 	server.startGrpcServer(productHandler)
@@ -65,14 +66,26 @@ func (server *Server) initPostStore(client *mongo.Client) domain.PostStore {
 	return store
 }
 
+func (server *Server) initMessageStore(client *mongo.Client) domain.MessageStore {
+	store := persistence.NewMessageMongoDBStore(client)
+	store.DeleteAll()
+	for _, message := range messages {
+		err := store.Insert(message)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	return store
+}
+
 func (server *Server) initUploadImageStore() domain.UploadImageStore {
 	imageStore := persistence.NewUploadImageStore(server.config.SecretAccessKey, server.config.AccessKey)
 	imageStore.Start()
 	return imageStore
 }
 
-func (server *Server) initPostService(store domain.PostStore, imageStore domain.UploadImageStore, logger *logger.Logger) *application.PostService {
-	return application.NewPostService(store, imageStore, logger)
+func (server *Server) initPostService(store domain.PostStore, imageStore domain.UploadImageStore, logger *logger.Logger, messageStore domain.MessageStore) *application.PostService {
+	return application.NewPostService(store, imageStore, logger, messageStore)
 }
 
 func (server *Server) initPostHandler(service *application.PostService, logger *logger.Logger) *api.PostHandler {

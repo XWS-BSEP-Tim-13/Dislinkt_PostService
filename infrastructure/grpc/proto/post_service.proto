@@ -71,6 +71,14 @@ service PostService{
       get :"/post/image/{imagePath}"
     };
   }
+
+  rpc GetMessagesForUser(GetByUserRequest) returns(MessageResponse){
+    option(google.api.http) = {
+      get :"/message/{username}"
+    };
+  }
+
+  rpc SaveMessage(SaveMessageRequest) returns(GetAllRequest){}
 }
 
 message ImageRequest{
@@ -143,6 +151,35 @@ message ReactionRequest {
 
 message ReactionResponse {
   string postId = 1;
+}
+
+message MessageResponse{
+  MessageUsers messages=1;
+}
+
+
+message Message{
+  string messageFrom =1;
+  string messageTo = 2;
+  string content =3;
+  google.protobuf.Timestamp date = 4;
+}
+
+message MessageDto{
+  string messageFrom =1;
+  string messageTo = 2;
+  string content =3;
+}
+
+message SaveMessageRequest{
+  MessageDto message=1;
+}
+
+message MessageUsers{
+  string id =1;
+  string firstUser =2;
+  string secondUser =3;
+  repeated Message messages=4;
 }
 
 message Reaction {

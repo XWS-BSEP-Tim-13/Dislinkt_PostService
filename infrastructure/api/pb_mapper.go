@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/domain"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/domain/enum"
 	pb "github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/infrastructure/grpc/proto"
@@ -39,6 +40,7 @@ func mapUsernamesToDomain(usernamesPb *pb.Usernames) []string {
 }
 
 func mapPostDtoPbToDomain(postPb *pb.PostDto) *domain.Post {
+	fmt.Println("Username: ", postPb.Username)
 	postId, _ := primitive.ObjectIDFromHex((*postPb).Id)
 	post := &domain.Post{
 		Username: postPb.Username,
@@ -51,6 +53,34 @@ func mapPostDtoPbToDomain(postPb *pb.PostDto) *domain.Post {
 		Id:       postId,
 	}
 	return post
+}
+
+func mapMessagesToPb(messagees *domain.MessageUsers) *pb.MessageUsers {
+	messages := &pb.MessageUsers{
+		Id:         messagees.Id.Hex(),
+		FirstUser:  messagees.FirstUser,
+		SecondUser: messagees.SecondUser,
+	}
+	message := []pb.Message{}
+	for _, mess := range (*messagees).Messages {
+		message = append(message, pb.Message{
+			MessageFrom: mess.MessageFrom,
+			MessageTo:   mess.MessageTo,
+			Date:        timestamppb.New(mess.Date),
+			Content:     mess.Content,
+		})
+	}
+	return messages
+}
+
+func mapMessagePbToDomain(messagePb *pb.MessageDto) *domain.Message {
+	message := &domain.Message{
+		MessageFrom: messagePb.MessageFrom,
+		MessageTo:   messagePb.MessageTo,
+		Date:        time.Now(),
+		Content:     messagePb.Content,
+	}
+	return message
 }
 
 func mapPostPbToDomain(postPb *pb.Post) *domain.Post {

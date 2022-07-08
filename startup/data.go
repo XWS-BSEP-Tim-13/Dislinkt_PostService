@@ -169,6 +169,46 @@ var posts = []*domain.Post{
 	},
 }
 
+var messages = []*domain.MessageUsers{
+	{
+		Id:         getObjectId("623b0cc3a34d25d8567f9f83"),
+		FirstUser:  "srdjansukovic",
+		SecondUser: "stefanljubovic",
+		Messages: []domain.Message{
+			{
+				Date:        time.Now(),
+				MessageTo:   "srdjansukovic",
+				MessageFrom: "stefanljubovic",
+				Content:     "Lorem ipsum lores..",
+			},
+			{
+				Date:        time.Now().Add(time.Hour),
+				MessageTo:   "srdjansukovic",
+				MessageFrom: "stefanljubovic",
+				Content:     "Lorem ipsum lores lorem..",
+			},
+			{
+				Date:        time.Now().Add(time.Hour * 2),
+				MessageTo:   "srdjansukovic",
+				MessageFrom: "stefanljubovic",
+				Content:     "Lorem ipsum lores lorem lor..",
+			},
+			{
+				Date:        time.Now().Add(time.Hour),
+				MessageTo:   "stefanljubovic",
+				MessageFrom: "srdjansukovic",
+				Content:     "Lorem ipsum lores lorem lorem ipsum lorem..",
+			},
+			{
+				Date:        time.Now().Add(time.Hour),
+				MessageTo:   "stefanljubovic",
+				MessageFrom: "srdjansukovic",
+				Content:     "Lorem ipsum lores lorem lorem ipsum saffsafsa..",
+			},
+		},
+	},
+}
+
 func getObjectId(id string) primitive.ObjectID {
 	if objectId, err := primitive.ObjectIDFromHex(id); err == nil {
 		return objectId
