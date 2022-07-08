@@ -237,15 +237,22 @@ func (handler *PostHandler) GetMessagesForUsers(ctx context.Context, request *pb
 	return response, nil
 }
 
-func (handler *PostHandler) GetMessagesForUser(ctx context.Context, request *pb.GetAllRequest) (*pb.MessageResponse, error) {
+func (handler *PostHandler) GetMessagesForUser(ctx context.Context, request *pb.GetAllRequest) (*pb.GetByUserResponse, error) {
 	principal, _ := jwt.ExtractUsernameFromToken(ctx)
 	messages, err := handler.service.GetMessagesByUser(principal)
 	if err != nil {
 		return nil, err
 	}
-	response := &pb.MessageResponse{
-		Messages: mapMessagesToPb(messages),
+
+	response := &pb.GetByUserResponse{
+		Messages: []*pb.MessageUsers{},
 	}
+
+	for _, message := range messages {
+		current := mapMessagesToPb(message)
+		response.Messages = append(response.Messages, current)
+	}
+
 	return response, nil
 }
 

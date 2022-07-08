@@ -78,7 +78,7 @@ service PostService{
     };
   }
 
-  rpc GetMessagesForUser(GetAllRequest) returns(MessageResponse){
+  rpc GetMessagesForUser(GetAllRequest) returns(GetByUserResponse){
     option(google.api.http) = {
       get :"/message"
     };
@@ -163,6 +163,9 @@ message MessageResponse{
   MessageUsers messages=1;
 }
 
+message GetByUserResponse{
+  repeated MessageUsers messages=1;
+}
 
 message Message{
   string id =5;

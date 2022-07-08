@@ -188,7 +188,7 @@ func (service *PostService) SaveMessage(message *domain.Message) error {
 	return service.messageStore.SendMessage(message)
 }
 
-func (service *PostService) GetMessagesByUser(username string) (*domain.MessageUsers, error) {
+func (service *PostService) GetMessagesByUser(username string) ([]*domain.MessageUsers, error) {
 	messages, err := service.messageStore.GetByUser(username)
 	if err != nil {
 		fmt.Println(err)

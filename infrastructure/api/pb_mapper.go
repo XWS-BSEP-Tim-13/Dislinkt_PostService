@@ -63,6 +63,7 @@ func mapMessagesToPb(messagees *domain.MessageUsers) *pb.MessageUsers {
 	}
 	message := []pb.Message{}
 	for _, mess := range (*messagees).Messages {
+		fmt.Println(mess)
 		message = append(message, pb.Message{
 			MessageFrom: mess.MessageFrom,
 			MessageTo:   mess.MessageTo,

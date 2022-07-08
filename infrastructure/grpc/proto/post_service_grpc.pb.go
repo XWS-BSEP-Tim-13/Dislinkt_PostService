@@ -34,7 +34,7 @@ type PostServiceClient interface {
 	UploadImage(ctx context.Context, in *ImageRequest, opts ...grpc.CallOption) (*ImageResponse, error)
 	GetImage(ctx context.Context, in *ImageResponse, opts ...grpc.CallOption) (*ImageRequest, error)
 	GetMessagesForUsers(ctx context.Context, in *GetByUserRequest, opts ...grpc.CallOption) (*MessageResponse, error)
-	GetMessagesForUser(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (*MessageResponse, error)
+	GetMessagesForUser(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (*GetByUserResponse, error)
 	SaveMessage(ctx context.Context, in *SaveMessageRequest, opts ...grpc.CallOption) (*GetAllRequest, error)
 }
 
@@ -154,8 +154,8 @@ func (c *postServiceClient) GetMessagesForUsers(ctx context.Context, in *GetByUs
 	return out, nil
 }
 
-func (c *postServiceClient) GetMessagesForUser(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (*MessageResponse, error) {
-	out := new(MessageResponse)
+func (c *postServiceClient) GetMessagesForUser(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (*GetByUserResponse, error) {
+	out := new(GetByUserResponse)
 	err := c.cc.Invoke(ctx, "/post.PostService/GetMessagesForUser", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -188,7 +188,7 @@ type PostServiceServer interface {
 	UploadImage(context.Context, *ImageRequest) (*ImageResponse, error)
 	GetImage(context.Context, *ImageResponse) (*ImageRequest, error)
 	GetMessagesForUsers(context.Context, *GetByUserRequest) (*MessageResponse, error)
-	GetMessagesForUser(context.Context, *GetAllRequest) (*MessageResponse, error)
+	GetMessagesForUser(context.Context, *GetAllRequest) (*GetByUserResponse, error)
 	SaveMessage(context.Context, *SaveMessageRequest) (*GetAllRequest, error)
 	mustEmbedUnimplementedPostServiceServer()
 }
@@ -233,7 +233,7 @@ func (UnimplementedPostServiceServer) GetImage(context.Context, *ImageResponse) 
 func (UnimplementedPostServiceServer) GetMessagesForUsers(context.Context, *GetByUserRequest) (*MessageResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMessagesForUsers not implemented")
 }
-func (UnimplementedPostServiceServer) GetMessagesForUser(context.Context, *GetAllRequest) (*MessageResponse, error) {
+func (UnimplementedPostServiceServer) GetMessagesForUser(context.Context, *GetAllRequest) (*GetByUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMessagesForUser not implemented")
 }
 func (UnimplementedPostServiceServer) SaveMessage(context.Context, *SaveMessageRequest) (*GetAllRequest, error) {

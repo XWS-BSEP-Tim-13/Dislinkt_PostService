@@ -17,7 +17,7 @@ type MessageMongoDBStore struct {
 	messages *mongo.Collection
 }
 
-func (store MessageMongoDBStore) GetByUser(firstUsername string) (*domain.MessageUsers, error) {
+func (store MessageMongoDBStore) GetByUser(firstUsername string) ([]*domain.MessageUsers, error) {
 	filter1 := bson.M{"first_user": firstUsername}
 	filter2 := bson.M{"second_user": firstUsername}
 	filterr := bson.M{
@@ -27,7 +27,7 @@ func (store MessageMongoDBStore) GetByUser(firstUsername string) (*domain.Messag
 		},
 	}
 
-	return store.filterOne(filterr)
+	return store.filter(filterr)
 }
 
 func (store MessageMongoDBStore) Insert(messages *domain.MessageUsers) error {
