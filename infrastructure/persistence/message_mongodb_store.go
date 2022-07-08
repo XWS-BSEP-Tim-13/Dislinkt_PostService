@@ -17,6 +17,19 @@ type MessageMongoDBStore struct {
 	messages *mongo.Collection
 }
 
+func (store MessageMongoDBStore) GetByUser(firstUsername string) (*domain.MessageUsers, error) {
+	filter1 := bson.M{"first_user": firstUsername}
+	filter2 := bson.M{"second_user": firstUsername}
+	filterr := bson.M{
+		"$or": []bson.M{
+			filter1,
+			filter2,
+		},
+	}
+
+	return store.filterOne(filterr)
+}
+
 func (store MessageMongoDBStore) Insert(messages *domain.MessageUsers) error {
 	result, err := store.messages.InsertOne(context.TODO(), messages)
 	if err != nil {

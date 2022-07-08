@@ -72,9 +72,15 @@ service PostService{
     };
   }
 
-  rpc GetMessagesForUser(GetByUserRequest) returns(MessageResponse){
+  rpc GetMessagesForUsers(GetByUserRequest) returns(MessageResponse){
     option(google.api.http) = {
       get :"/message/{username}"
+    };
+  }
+
+  rpc GetMessagesForUser(GetAllRequest) returns(MessageResponse){
+    option(google.api.http) = {
+      get :"/message"
     };
   }
 

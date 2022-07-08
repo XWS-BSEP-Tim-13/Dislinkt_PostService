@@ -33,7 +33,8 @@ type PostServiceClient interface {
 	CreateCommentOnPost(ctx context.Context, in *CommentRequest, opts ...grpc.CallOption) (*CommentResponse, error)
 	UploadImage(ctx context.Context, in *ImageRequest, opts ...grpc.CallOption) (*ImageResponse, error)
 	GetImage(ctx context.Context, in *ImageResponse, opts ...grpc.CallOption) (*ImageRequest, error)
-	GetMessagesForUser(ctx context.Context, in *GetByUserRequest, opts ...grpc.CallOption) (*MessageResponse, error)
+	GetMessagesForUsers(ctx context.Context, in *GetByUserRequest, opts ...grpc.CallOption) (*MessageResponse, error)
+	GetMessagesForUser(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (*MessageResponse, error)
 	SaveMessage(ctx context.Context, in *SaveMessageRequest, opts ...grpc.CallOption) (*GetAllRequest, error)
 }
 
@@ -144,7 +145,16 @@ func (c *postServiceClient) GetImage(ctx context.Context, in *ImageResponse, opt
 	return out, nil
 }
 
-func (c *postServiceClient) GetMessagesForUser(ctx context.Context, in *GetByUserRequest, opts ...grpc.CallOption) (*MessageResponse, error) {
+func (c *postServiceClient) GetMessagesForUsers(ctx context.Context, in *GetByUserRequest, opts ...grpc.CallOption) (*MessageResponse, error) {
+	out := new(MessageResponse)
+	err := c.cc.Invoke(ctx, "/post.PostService/GetMessagesForUsers", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *postServiceClient) GetMessagesForUser(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (*MessageResponse, error) {
 	out := new(MessageResponse)
 	err := c.cc.Invoke(ctx, "/post.PostService/GetMessagesForUser", in, out, opts...)
 	if err != nil {
@@ -177,7 +187,8 @@ type PostServiceServer interface {
 	CreateCommentOnPost(context.Context, *CommentRequest) (*CommentResponse, error)
 	UploadImage(context.Context, *ImageRequest) (*ImageResponse, error)
 	GetImage(context.Context, *ImageResponse) (*ImageRequest, error)
-	GetMessagesForUser(context.Context, *GetByUserRequest) (*MessageResponse, error)
+	GetMessagesForUsers(context.Context, *GetByUserRequest) (*MessageResponse, error)
+	GetMessagesForUser(context.Context, *GetAllRequest) (*MessageResponse, error)
 	SaveMessage(context.Context, *SaveMessageRequest) (*GetAllRequest, error)
 	mustEmbedUnimplementedPostServiceServer()
 }
@@ -219,7 +230,10 @@ func (UnimplementedPostServiceServer) UploadImage(context.Context, *ImageRequest
 func (UnimplementedPostServiceServer) GetImage(context.Context, *ImageResponse) (*ImageRequest, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetImage not implemented")
 }
-func (UnimplementedPostServiceServer) GetMessagesForUser(context.Context, *GetByUserRequest) (*MessageResponse, error) {
+func (UnimplementedPostServiceServer) GetMessagesForUsers(context.Context, *GetByUserRequest) (*MessageResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMessagesForUsers not implemented")
+}
+func (UnimplementedPostServiceServer) GetMessagesForUser(context.Context, *GetAllRequest) (*MessageResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMessagesForUser not implemented")
 }
 func (UnimplementedPostServiceServer) SaveMessage(context.Context, *SaveMessageRequest) (*GetAllRequest, error) {
@@ -436,8 +450,26 @@ func _PostService_GetImage_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PostService_GetMessagesForUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PostService_GetMessagesForUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetByUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PostServiceServer).GetMessagesForUsers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/post.PostService/GetMessagesForUsers",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PostServiceServer).GetMessagesForUsers(ctx, req.(*GetByUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PostService_GetMessagesForUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAllRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -449,7 +481,7 @@ func _PostService_GetMessagesForUser_Handler(srv interface{}, ctx context.Contex
 		FullMethod: "/post.PostService/GetMessagesForUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PostServiceServer).GetMessagesForUser(ctx, req.(*GetByUserRequest))
+		return srv.(PostServiceServer).GetMessagesForUser(ctx, req.(*GetAllRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -522,6 +554,10 @@ var PostService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetImage",
 			Handler:    _PostService_GetImage_Handler,
+		},
+		{
+			MethodName: "GetMessagesForUsers",
+			Handler:    _PostService_GetMessagesForUsers_Handler,
 		},
 		{
 			MethodName: "GetMessagesForUser",

@@ -5,4 +5,5 @@ type MessageStore interface {
 	DeleteAll()
 	GetByUsers(firstUsername, secondUsername string) (*MessageUsers, error)
 	SendMessage(message *Message) error
+	GetByUser(firstUsername string) (*MessageUsers, error)
 }

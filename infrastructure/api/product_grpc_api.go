@@ -224,13 +224,25 @@ func (handler *PostHandler) GetImage(ctx context.Context, request *pb.ImageRespo
 	return response, nil
 }
 
-func (handler *PostHandler) GetMessagesForUser(ctx context.Context, request *pb.GetByUserRequest) (*pb.MessageResponse, error) {
+func (handler *PostHandler) GetMessagesForUsers(ctx context.Context, request *pb.GetByUserRequest) (*pb.MessageResponse, error) {
 	principal, _ := jwt.ExtractUsernameFromToken(ctx)
 	messages, err := handler.service.GetMessagesByUsers(request.Username, principal)
 	if err != nil {
 		return nil, err
 	}
 
+	response := &pb.MessageResponse{
+		Messages: mapMessagesToPb(messages),
+	}
+	return response, nil
+}
+
+func (handler *PostHandler) GetMessagesForUser(ctx context.Context, request *pb.GetAllRequest) (*pb.MessageResponse, error) {
+	principal, _ := jwt.ExtractUsernameFromToken(ctx)
+	messages, err := handler.service.GetMessagesByUser(principal)
+	if err != nil {
+		return nil, err
+	}
 	response := &pb.MessageResponse{
 		Messages: mapMessagesToPb(messages),
 	}
