@@ -104,8 +104,8 @@ func (handler *PostHandler) CreatePost(ctx context.Context, request *pb.NewPostR
 
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	username, _ := jwt.ExtractUsernameFromToken(ctx)
-	post := mapPostDtoPbToDomain(request.Post, username)
+	//username, _ := jwt.ExtractUsernameFromToken(ctx)
+	post := mapPostDtoPbToDomain(request.Post)
 
 	newPost, err := handler.service.CreateNewPost(ctx, post)
 	if err != nil {
