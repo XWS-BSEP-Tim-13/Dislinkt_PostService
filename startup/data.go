@@ -228,6 +228,15 @@ var messages = []*domain.MessageUsers{
 	},
 }
 
+var events = []*domain.Event{
+	{
+		Id:        getObjectId("623b0cc3a34d25d8567f9f92"),
+		Action:    `Created post "Mrzim go!"`,
+		User:      "stefanljubovic",
+		Published: time.Now().Add(24 * time.Hour),
+	},
+}
+
 func getObjectId(id string) primitive.ObjectID {
 	if objectId, err := primitive.ObjectIDFromHex(id); err == nil {
 		return objectId

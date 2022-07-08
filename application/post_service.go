@@ -10,6 +10,7 @@ import (
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/util"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/grpc/status"
+	"time"
 )
 
 type PostService struct {
@@ -17,14 +18,16 @@ type PostService struct {
 	imageStore   domain.UploadImageStore
 	logger       *logger.Logger
 	messageStore domain.MessageStore
+	eventStore   domain.EventStore
 }
 
-func NewPostService(store domain.PostStore, imageStore domain.UploadImageStore, logger *logger.Logger, messageStore domain.MessageStore) *PostService {
+func NewPostService(store domain.PostStore, imageStore domain.UploadImageStore, logger *logger.Logger, messageStore domain.MessageStore, eventStore domain.EventStore) *PostService {
 	return &PostService{
 		store:        store,
 		imageStore:   imageStore,
 		logger:       logger,
 		messageStore: messageStore,
+		eventStore:   eventStore,
 	}
 }
 
@@ -90,6 +93,8 @@ func (service *PostService) ReactToPost(ctx context.Context, reaction *domain.Re
 			}
 
 			(*post).Likes = append((*post).Likes, (*reaction).Username)
+			var event = domain.Event{Id: primitive.NewObjectID(), User: (*reaction).Username, Action: `Liked post of user ` + post.Username, Published: time.Now()}
+			service.eventStore.Insert(&event)
 		}
 	} else if (*reaction).ReactionType == 1 {
 		foundInDislikes := false
@@ -110,6 +115,8 @@ func (service *PostService) ReactToPost(ctx context.Context, reaction *domain.Re
 			}
 
 			(*post).Dislikes = append((*post).Dislikes, (*reaction).Username)
+			var event = domain.Event{Id: primitive.NewObjectID(), User: (*reaction).Username, Action: `Disliked post of user ` + post.Username, Published: time.Now()}
+			service.eventStore.Insert(&event)
 		}
 	} else {
 		service.logger.ErrorMessage("User: " + post.Username + " Action: RNS")
@@ -137,6 +144,9 @@ func (service *PostService) CreateNewPost(ctx context.Context, post *domain.Post
 		return nil, err
 	}
 
+	var event = domain.Event{Id: primitive.NewObjectID(), User: post.Username, Action: `Liked post of user ` + post.Username, Published: time.Now()}
+	service.eventStore.Insert(&event)
+
 	return post, nil
 }
 
@@ -155,6 +165,8 @@ func (service *PostService) CreateNewComment(ctx context.Context, comment *domai
 	if err != nil {
 		return nil, err
 	}
+	var event = domain.Event{Id: primitive.NewObjectID(), User: (*comment).Username, Action: `Comment on post of user ` + post.Username, Published: time.Now()}
+	service.eventStore.Insert(&event)
 	(*post).Comments = append((*post).Comments, *comment)
 	_, err = service.store.UpdateReactions(ctx, post)
 	if err != nil {
@@ -242,7 +254,10 @@ func (service *PostService) GetMessagesByUsers(firstUsername, secondUsername str
 	return messages, nil
 }
 func (service *PostService) SaveMessage(message *domain.Message) error {
-	return service.messageStore.SendMessage(message)
+	error := service.messageStore.SendMessage(message)
+	var event = domain.Event{Id: primitive.NewObjectID(), User: message.MessageFrom, Action: `Message to user ` + message.MessageTo, Published: time.Now()}
+	service.eventStore.Insert(&event)
+	return error
 }
 
 func (service *PostService) GetMessagesByUser(username string) ([]*domain.MessageUsers, error) {
@@ -252,4 +267,8 @@ func (service *PostService) GetMessagesByUser(username string) ([]*domain.Messag
 		return nil, err
 	}
 	return messages, nil
+}
+
+func (service *PostService) GetAllEvents() ([]*domain.Event, error) {
+	return service.eventStore.GetAll()
 }

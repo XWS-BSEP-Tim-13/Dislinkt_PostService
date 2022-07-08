@@ -104,8 +104,8 @@ func (handler *PostHandler) CreatePost(ctx context.Context, request *pb.NewPostR
 
 	ctx = tracer.ContextWithSpan(context.Background(), span)
 
-	username, _ := jwt.ExtractUsernameFromToken(ctx)
-	post := mapPostDtoPbToDomain(request.Post, username)
+	//username, _ := jwt.ExtractUsernameFromToken(ctx)
+	post := mapPostDtoPbToDomain(request.Post)
 
 	newPost, err := handler.service.CreateNewPost(ctx, post)
 	if err != nil {
@@ -321,5 +321,22 @@ func (handler *PostHandler) SaveMessage(ctx context.Context, request *pb.SaveMes
 		return nil, err
 	}
 	response := &pb.GetAllRequest{}
+	return response, nil
+}
+
+func (handler *PostHandler) GetEvents(ctx context.Context, request *pb.EventRequest) (*pb.Events, error) {
+	events, err := handler.service.GetAllEvents()
+	if err != nil {
+		return nil, err
+	}
+	response := &pb.Events{
+		Events: []*pb.Event{},
+	}
+
+	for _, event := range events {
+		current := mapEventToPB(event)
+		response.Events = append(response.Events, current)
+	}
+
 	return response, nil
 }

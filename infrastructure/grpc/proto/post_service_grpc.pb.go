@@ -36,6 +36,8 @@ type PostServiceClient interface {
 	GetMessagesForUsers(ctx context.Context, in *GetByUserRequest, opts ...grpc.CallOption) (*MessageResponse, error)
 	GetMessagesForUser(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (*GetByUserResponse, error)
 	SaveMessage(ctx context.Context, in *SaveMessageRequest, opts ...grpc.CallOption) (*GetAllRequest, error)
+	GetEvents(ctx context.Context, in *EventRequest, opts ...grpc.CallOption) (*Events, error)
+	SaveEvent(ctx context.Context, in *Event, opts ...grpc.CallOption) (*EventRequest, error)
 }
 
 type postServiceClient struct {
@@ -172,6 +174,24 @@ func (c *postServiceClient) SaveMessage(ctx context.Context, in *SaveMessageRequ
 	return out, nil
 }
 
+func (c *postServiceClient) GetEvents(ctx context.Context, in *EventRequest, opts ...grpc.CallOption) (*Events, error) {
+	out := new(Events)
+	err := c.cc.Invoke(ctx, "/post.PostService/GetEvents", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *postServiceClient) SaveEvent(ctx context.Context, in *Event, opts ...grpc.CallOption) (*EventRequest, error) {
+	out := new(EventRequest)
+	err := c.cc.Invoke(ctx, "/post.PostService/SaveEvent", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PostServiceServer is the server API for PostService service.
 // All implementations must embed UnimplementedPostServiceServer
 // for forward compatibility
@@ -190,6 +210,8 @@ type PostServiceServer interface {
 	GetMessagesForUsers(context.Context, *GetByUserRequest) (*MessageResponse, error)
 	GetMessagesForUser(context.Context, *GetAllRequest) (*GetByUserResponse, error)
 	SaveMessage(context.Context, *SaveMessageRequest) (*GetAllRequest, error)
+	GetEvents(context.Context, *EventRequest) (*Events, error)
+	SaveEvent(context.Context, *Event) (*EventRequest, error)
 	mustEmbedUnimplementedPostServiceServer()
 }
 
@@ -238,6 +260,12 @@ func (UnimplementedPostServiceServer) GetMessagesForUser(context.Context, *GetAl
 }
 func (UnimplementedPostServiceServer) SaveMessage(context.Context, *SaveMessageRequest) (*GetAllRequest, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SaveMessage not implemented")
+}
+func (UnimplementedPostServiceServer) GetEvents(context.Context, *EventRequest) (*Events, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEvents not implemented")
+}
+func (UnimplementedPostServiceServer) SaveEvent(context.Context, *Event) (*EventRequest, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SaveEvent not implemented")
 }
 func (UnimplementedPostServiceServer) mustEmbedUnimplementedPostServiceServer() {}
 
@@ -504,6 +532,42 @@ func _PostService_SaveMessage_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PostService_GetEvents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EventRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PostServiceServer).GetEvents(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/post.PostService/GetEvents",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PostServiceServer).GetEvents(ctx, req.(*EventRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PostService_SaveEvent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Event)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PostServiceServer).SaveEvent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/post.PostService/SaveEvent",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PostServiceServer).SaveEvent(ctx, req.(*Event))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PostService_ServiceDesc is the grpc.ServiceDesc for PostService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -566,6 +630,14 @@ var PostService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SaveMessage",
 			Handler:    _PostService_SaveMessage_Handler,
+		},
+		{
+			MethodName: "GetEvents",
+			Handler:    _PostService_GetEvents_Handler,
+		},
+		{
+			MethodName: "SaveEvent",
+			Handler:    _PostService_SaveEvent_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
