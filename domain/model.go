@@ -24,10 +24,11 @@ type Post struct {
 }
 
 type Message struct {
-	MessageFrom string    `bson:"message_from"`
-	MessageTo   string    `bson:"message_to"`
-	Content     string    `bson:"content"`
-	Date        time.Time `bson:"date"`
+	Id          primitive.ObjectID `bson:"_id"`
+	MessageFrom string             `bson:"message_from"`
+	MessageTo   string             `bson:"message_to"`
+	Content     string             `bson:"content"`
+	Date        time.Time          `bson:"date"`
 }
 
 type MessageUsers struct {

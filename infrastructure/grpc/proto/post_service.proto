@@ -165,6 +165,7 @@ message MessageResponse{
 
 
 message Message{
+  string id =5;
   string messageFrom =1;
   string messageTo = 2;
   string content =3;

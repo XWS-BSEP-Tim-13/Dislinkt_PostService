@@ -75,6 +75,7 @@ func mapMessagesToPb(messagees *domain.MessageUsers) *pb.MessageUsers {
 
 func mapMessagePbToDomain(messagePb *pb.MessageDto) *domain.Message {
 	message := &domain.Message{
+		Id:          primitive.NewObjectID(),
 		MessageFrom: messagePb.MessageFrom,
 		MessageTo:   messagePb.MessageTo,
 		Date:        time.Now(),

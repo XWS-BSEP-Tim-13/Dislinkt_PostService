@@ -176,34 +176,53 @@ var messages = []*domain.MessageUsers{
 		SecondUser: "stefanljubovic",
 		Messages: []domain.Message{
 			{
+				Id:          getObjectId("623b0cc3a34d25d8567f9f83"),
 				Date:        time.Now(),
 				MessageTo:   "srdjansukovic",
 				MessageFrom: "stefanljubovic",
 				Content:     "Lorem ipsum lores..",
 			},
 			{
+				Id:          getObjectId("623b0cc3a34d25d8567f9f84"),
 				Date:        time.Now().Add(time.Hour),
 				MessageTo:   "srdjansukovic",
 				MessageFrom: "stefanljubovic",
 				Content:     "Lorem ipsum lores lorem..",
 			},
 			{
+				Id:          getObjectId("623b0cc3a34d25d8567f9f85"),
 				Date:        time.Now().Add(time.Hour * 2),
 				MessageTo:   "srdjansukovic",
 				MessageFrom: "stefanljubovic",
 				Content:     "Lorem ipsum lores lorem lor..",
 			},
 			{
+				Id:          getObjectId("623b0cc3a34d25d8567f9f86"),
 				Date:        time.Now().Add(time.Hour),
 				MessageTo:   "stefanljubovic",
 				MessageFrom: "srdjansukovic",
 				Content:     "Lorem ipsum lores lorem lorem ipsum lorem..",
 			},
 			{
+				Id:          getObjectId("623b0cc3a34d25d8567f9f87"),
 				Date:        time.Now().Add(time.Hour),
 				MessageTo:   "stefanljubovic",
 				MessageFrom: "srdjansukovic",
 				Content:     "Lorem ipsum lores lorem lorem ipsum saffsafsa..",
+			},
+		},
+	},
+	{
+		Id:         getObjectId("623b0cc3a34d25d8567f9f83"),
+		FirstUser:  "lenka",
+		SecondUser: "stefanljubovic",
+		Messages: []domain.Message{
+			{
+				Id:          getObjectId("623b0cc3a34d25d8567f9f88"),
+				Date:        time.Now(),
+				MessageTo:   "lenka",
+				MessageFrom: "stefanljubovic",
+				Content:     "Lorem ipsum lores..",
 			},
 		},
 	},
