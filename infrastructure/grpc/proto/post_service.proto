@@ -85,6 +85,14 @@ service PostService{
   }
 
   rpc SaveMessage(SaveMessageRequest) returns(GetAllRequest){}
+
+  rpc GetEvents(EventRequest)returns(Events){
+    option(google.api.http) = {
+      get: "/events",
+    };
+  }
+
+  rpc SaveEvent(Event) returns(EventRequest){}
 }
 
 message ImageRequest{
@@ -190,6 +198,20 @@ message MessageUsers{
   string firstUser =2;
   string secondUser =3;
   repeated Message messages=4;
+}
+
+message EventRequest {
+}
+
+message Event {
+  string id = 1;
+  string action = 2;
+  string user = 3;
+  google.protobuf.Timestamp published = 4;
+}
+
+message Events {
+  repeated Event events = 1;
 }
 
 message Reaction {
