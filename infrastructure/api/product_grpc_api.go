@@ -10,6 +10,7 @@ import (
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/logger"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type PostHandler struct {
@@ -256,12 +257,18 @@ func (handler *PostHandler) GetMessagesForUser(ctx context.Context, request *pb.
 	return response, nil
 }
 
-func (handler *PostHandler) SaveMessage(ctx context.Context, request *pb.SaveMessageRequest) (*pb.GetAllRequest, error) {
+func (handler *PostHandler) SaveMessage(ctx context.Context, request *pb.SaveMessageRequest) (*pb.Message, error) {
 	message := mapMessagePbToDomain(request.Message)
 	err := handler.service.SaveMessage(message)
 	if err != nil {
 		return nil, err
 	}
-	response := &pb.GetAllRequest{}
+	response := &pb.Message{
+		MessageTo:   message.MessageTo,
+		MessageFrom: message.MessageFrom,
+		Content:     message.Content,
+		Id:          message.Id.Hex(),
+		Date:        timestamppb.New(message.Date),
+	}
 	return response, nil
 }

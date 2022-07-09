@@ -84,7 +84,7 @@ service PostService{
     };
   }
 
-  rpc SaveMessage(SaveMessageRequest) returns(GetAllRequest){}
+  rpc SaveMessage(SaveMessageRequest) returns(Message){}
 }
 
 message ImageRequest{

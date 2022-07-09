@@ -56,21 +56,23 @@ func mapPostDtoPbToDomain(postPb *pb.PostDto) *domain.Post {
 }
 
 func mapMessagesToPb(messagees *domain.MessageUsers) *pb.MessageUsers {
-	messages := &pb.MessageUsers{
-		Id:         messagees.Id.Hex(),
-		FirstUser:  messagees.FirstUser,
-		SecondUser: messagees.SecondUser,
-	}
-	message := []pb.Message{}
+	message := []*pb.Message{}
 	for _, mess := range (*messagees).Messages {
 		fmt.Println(mess)
-		message = append(message, pb.Message{
+		message = append(message, &pb.Message{
 			MessageFrom: mess.MessageFrom,
 			MessageTo:   mess.MessageTo,
 			Date:        timestamppb.New(mess.Date),
 			Content:     mess.Content,
 		})
 	}
+	messages := &pb.MessageUsers{
+		Id:         messagees.Id.Hex(),
+		FirstUser:  messagees.FirstUser,
+		SecondUser: messagees.SecondUser,
+		Messages:   message,
+	}
+
 	return messages
 }
 
