@@ -88,7 +88,7 @@ service PostService{
 
   rpc GetEvents(EventRequest)returns(Events){
     option(google.api.http) = {
-      get: "/events",
+      get: "/post/events",
     };
   }
 
