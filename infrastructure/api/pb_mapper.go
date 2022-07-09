@@ -87,6 +87,16 @@ func mapMessagePbToDomain(messagePb *pb.MessageDto) *domain.Message {
 	return message
 }
 
+func mapEventToPB(request *domain.Event) *pb.Event {
+	eventPb := &pb.Event{
+		Id:        request.Id.Hex(),
+		Action:    request.Action,
+		User:      request.User,
+		Published: timestamppb.New(request.Published),
+	}
+	return eventPb
+}
+
 func mapPostPbToDomain(postPb *pb.Post) *domain.Post {
 	post := &domain.Post{
 		Username: (*postPb).Username,

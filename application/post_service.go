@@ -1,13 +1,16 @@
 package application
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/domain"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/logger"
+	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/tracer"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/util"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/grpc/status"
+	"time"
 )
 
 type PostService struct {
@@ -15,31 +18,53 @@ type PostService struct {
 	imageStore   domain.UploadImageStore
 	logger       *logger.Logger
 	messageStore domain.MessageStore
+	eventStore   domain.EventStore
 }
 
-func NewPostService(store domain.PostStore, imageStore domain.UploadImageStore, logger *logger.Logger, messageStore domain.MessageStore) *PostService {
+func NewPostService(store domain.PostStore, imageStore domain.UploadImageStore, logger *logger.Logger, messageStore domain.MessageStore, eventStore domain.EventStore) *PostService {
 	return &PostService{
 		store:        store,
 		imageStore:   imageStore,
 		logger:       logger,
 		messageStore: messageStore,
+		eventStore:   eventStore,
 	}
 }
 
-func (service *PostService) Get(id primitive.ObjectID) (*domain.Post, error) {
-	return service.store.Get(id)
+func (service *PostService) Get(ctx context.Context, id primitive.ObjectID) (*domain.Post, error) {
+	span := tracer.StartSpanFromContext(ctx, "SERVICE Get")
+	defer span.Finish()
+
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.store.Get(ctx, id)
 }
 
-func (service *PostService) GetAll() ([]*domain.Post, error) {
-	return service.store.GetAll()
+func (service *PostService) GetAll(ctx context.Context) ([]*domain.Post, error) {
+	span := tracer.StartSpanFromContext(ctx, "SERVICE GetAll")
+	defer span.Finish()
+
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.store.GetAll(ctx)
 }
 
-func (service *PostService) GetByUser(username string) ([]*domain.Post, error) {
-	return service.store.GetByUser(username)
+func (service *PostService) GetByUser(ctx context.Context, username string) ([]*domain.Post, error) {
+	span := tracer.StartSpanFromContext(ctx, "SERVICE GetByUser")
+	defer span.Finish()
+
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	return service.store.GetByUser(ctx, username)
 }
 
-func (service *PostService) ReactToPost(reaction *domain.Reaction) (string, error) {
-	post, err := service.Get((*reaction).PostId)
+func (service *PostService) ReactToPost(ctx context.Context, reaction *domain.Reaction) (string, error) {
+	span := tracer.StartSpanFromContext(ctx, "SERVICE ReactToPost")
+	defer span.Finish()
+
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	post, err := service.Get(ctx, (*reaction).PostId)
 	if err != nil {
 		service.logger.ErrorMessage("User: " + post.Username + " Action: PNF")
 		return "", status.Error(500, err.Error())
@@ -68,6 +93,8 @@ func (service *PostService) ReactToPost(reaction *domain.Reaction) (string, erro
 			}
 
 			(*post).Likes = append((*post).Likes, (*reaction).Username)
+			var event = domain.Event{Id: primitive.NewObjectID(), User: (*reaction).Username, Action: `Liked post of user ` + post.Username, Published: time.Now()}
+			service.eventStore.Insert(&event)
 		}
 	} else if (*reaction).ReactionType == 1 {
 		foundInDislikes := false
@@ -88,13 +115,15 @@ func (service *PostService) ReactToPost(reaction *domain.Reaction) (string, erro
 			}
 
 			(*post).Dislikes = append((*post).Dislikes, (*reaction).Username)
+			var event = domain.Event{Id: primitive.NewObjectID(), User: (*reaction).Username, Action: `Disliked post of user ` + post.Username, Published: time.Now()}
+			service.eventStore.Insert(&event)
 		}
 	} else {
 		service.logger.ErrorMessage("User: " + post.Username + " Action: RNS")
 		return "", status.Error(400, "This reaction is not supported!")
 	}
 
-	postID, err := service.store.UpdateReactions(post)
+	postID, err := service.store.UpdateReactions(ctx, post)
 	if err != nil {
 		service.logger.ErrorMessage("User: " + post.Username + " Action: UPR")
 		return "", status.Error(500, "Error while updating post!")
@@ -103,28 +132,43 @@ func (service *PostService) ReactToPost(reaction *domain.Reaction) (string, erro
 	return postID, nil
 }
 
-func (service *PostService) CreateNewPost(post *domain.Post) (*domain.Post, error) {
-	err := service.store.Insert(post)
+func (service *PostService) CreateNewPost(ctx context.Context, post *domain.Post) (*domain.Post, error) {
+	span := tracer.StartSpanFromContext(ctx, "SERVICE CreateNewPost")
+	defer span.Finish()
+
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	err := service.store.Insert(ctx, post)
 	if err != nil {
 		err := errors.New("error while creating new post")
 		return nil, err
 	}
 
+	var event = domain.Event{Id: primitive.NewObjectID(), User: post.Username, Action: `Liked post of user ` + post.Username, Published: time.Now()}
+	service.eventStore.Insert(&event)
+
 	return post, nil
 }
 
-func (service *PostService) CreateNewComment(comment *domain.Comment, postId string) (*domain.Comment, error) {
+func (service *PostService) CreateNewComment(ctx context.Context, comment *domain.Comment, postId string) (*domain.Comment, error) {
+	span := tracer.StartSpanFromContext(ctx, "SERVICE CreateNewComment")
+	defer span.Finish()
+
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	(*comment).Id = primitive.NewObjectID()
 	id, err := primitive.ObjectIDFromHex(postId)
 	if err != nil {
 		return nil, err
 	}
-	post, err := service.store.Get(id)
+	post, err := service.store.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
+	var event = domain.Event{Id: primitive.NewObjectID(), User: (*comment).Username, Action: `Comment on post of user ` + post.Username, Published: time.Now()}
+	service.eventStore.Insert(&event)
 	(*post).Comments = append((*post).Comments, *comment)
-	_, err = service.store.UpdateReactions(post)
+	_, err = service.store.UpdateReactions(ctx, post)
 	if err != nil {
 		err := errors.New("error while creating new comment")
 		return nil, err
@@ -132,38 +176,63 @@ func (service *PostService) CreateNewComment(comment *domain.Comment, postId str
 	return comment, nil
 }
 
-func (service *PostService) Delete(id primitive.ObjectID) error {
-	err := service.store.Delete(id)
+func (service *PostService) Delete(ctx context.Context, id primitive.ObjectID) error {
+	span := tracer.StartSpanFromContext(ctx, "SERVICE Delete")
+	defer span.Finish()
+
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	err := service.store.Delete(ctx, id)
 	return err
 }
 
-func (service *PostService) GetFeedPosts(page int64, usernames []string) (*domain.FeedDto, error) {
-	dto, err := service.store.GetFeed(page, usernames)
+func (service *PostService) GetFeedPosts(ctx context.Context, page int64, usernames []string) (*domain.FeedDto, error) {
+	span := tracer.StartSpanFromContext(ctx, "SERVICE GetFeedPosts")
+	defer span.Finish()
+
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	dto, err := service.store.GetFeed(ctx, page, usernames)
 	if err != nil {
 		return nil, err
 	}
 	return dto, err
 }
 
-func (service *PostService) GetFeedPostsAnonymous(page int64) (*domain.FeedDto, error) {
+func (service *PostService) GetFeedPostsAnonymous(ctx context.Context, page int64) (*domain.FeedDto, error) {
+	span := tracer.StartSpanFromContext(ctx, "SERVICE GetFeedPostsAnonymous")
+	defer span.Finish()
+
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	fmt.Println("Posts anonymus ", page)
-	dto, err := service.store.GetFeedAnonymous(page)
+	dto, err := service.store.GetFeedAnonymous(ctx, page)
 	if err != nil {
 		return nil, err
 	}
 	return dto, err
 }
 
-func (service *PostService) UploadImage(image []byte) (string, error) {
-	filename, err := service.imageStore.UploadObject(image)
+func (service *PostService) UploadImage(ctx context.Context, image []byte) (string, error) {
+	span := tracer.StartSpanFromContext(ctx, "SERVICE UploadImage")
+	defer span.Finish()
+
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	filename, err := service.imageStore.UploadObject(ctx, image)
 	if err != nil {
 		return "", nil
 	}
 	return filename, nil
 }
 
-func (service *PostService) GetImage(imagePath string) ([]byte, error) {
-	image := service.imageStore.GetObject(imagePath)
+func (service *PostService) GetImage(ctx context.Context, imagePath string) ([]byte, error) {
+	span := tracer.StartSpanFromContext(ctx, "SERVICE GetImage")
+	defer span.Finish()
+
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
+	image := service.imageStore.GetObject(ctx, imagePath)
 	return image, nil
 }
 
@@ -185,7 +254,10 @@ func (service *PostService) GetMessagesByUsers(firstUsername, secondUsername str
 	return messages, nil
 }
 func (service *PostService) SaveMessage(message *domain.Message) error {
-	return service.messageStore.SendMessage(message)
+	error := service.messageStore.SendMessage(message)
+	var event = domain.Event{Id: primitive.NewObjectID(), User: message.MessageFrom, Action: `Message to user ` + message.MessageTo, Published: time.Now()}
+	service.eventStore.Insert(&event)
+	return error
 }
 
 func (service *PostService) GetMessagesByUser(username string) ([]*domain.MessageUsers, error) {
@@ -195,4 +267,8 @@ func (service *PostService) GetMessagesByUser(username string) ([]*domain.Messag
 		return nil, err
 	}
 	return messages, nil
+}
+
+func (service *PostService) GetAllEvents() ([]*domain.Event, error) {
+	return service.eventStore.GetAll()
 }

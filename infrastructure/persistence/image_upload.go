@@ -2,8 +2,10 @@ package persistence
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/domain"
+	"github.com/XWS-BSEP-Tim-13/Dislinkt_PostService/tracer"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -18,7 +20,7 @@ var (
 )
 
 const (
-	BUCKET_NAME = "dislinkt"
+	BUCKET_NAME = "dislinktt"
 	REGION      = "eu-central-1"
 )
 
@@ -34,7 +36,12 @@ func NewUploadImageStore(secretAccessKey, accessKey string) domain.UploadImageSt
 	}
 }
 
-func (store *UploadImageStoreImpl) Start() {
+func (store *UploadImageStoreImpl) Start(ctx context.Context) {
+	span := tracer.StartSpanFromContext(ctx, "DB Start")
+	defer span.Finish()
+
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	fmt.Printf("Credentials: %s\n", store.accessKey)
 	sess, err := session.NewSession(&aws.Config{
 		Region:      aws.String(REGION),
@@ -74,7 +81,12 @@ func CreateBucket() (resp *s3.CreateBucketOutput) {
 	return resp
 }
 
-func (store *UploadImageStoreImpl) UploadObject(image []byte) (string, error) {
+func (store *UploadImageStoreImpl) UploadObject(ctx context.Context, image []byte) (string, error) {
+	span := tracer.StartSpanFromContext(ctx, "DB UploadObject")
+	defer span.Finish()
+
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	filename := uuid.New()
 	fmt.Println("Uploading:", filename)
 	r := bytes.NewReader(image)
@@ -94,7 +106,12 @@ func (store *UploadImageStoreImpl) UploadObject(image []byte) (string, error) {
 	return filename.String(), nil
 }
 
-func (store *UploadImageStoreImpl) GetObject(filename string) []byte {
+func (store *UploadImageStoreImpl) GetObject(ctx context.Context, filename string) []byte {
+	span := tracer.StartSpanFromContext(ctx, "DB GetObject")
+	defer span.Finish()
+
+	ctx = tracer.ContextWithSpan(context.Background(), span)
+
 	fmt.Println("Downloading: ", filename)
 
 	resp, err := s3session.GetObject(&s3.GetObjectInput{
