@@ -317,8 +317,10 @@ func (handler *PostHandler) GetMessagesForUser(ctx context.Context, request *pb.
 
 func (handler *PostHandler) SaveMessage(ctx context.Context, request *pb.SaveMessageRequest) (*pb.Message, error) {
 	message := mapMessagePbToDomain(request.Message)
+	fmt.Println(message)
 	err := handler.service.SaveMessage(message)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 	response := &pb.Message{
