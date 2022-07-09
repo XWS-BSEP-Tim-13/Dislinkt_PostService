@@ -235,6 +235,18 @@ var events = []*domain.Event{
 		User:      "stefanljubovic",
 		Published: time.Now().Add(24 * time.Hour),
 	},
+	{
+		Id:        getObjectId("623b0cc3a34d25d8567f9f93"),
+		Action:    `Created post "Mrzim go!"`,
+		User:      "srdjansukovic",
+		Published: time.Now().Add(24 * time.Hour),
+	},
+	{
+		Id:        getObjectId("623b0cc3a34d25d8567f9f94"),
+		Action:    `Created post "Mrzim go!"`,
+		User:      "anagavrilovic",
+		Published: time.Now().Add(24 * time.Hour),
+	},
 }
 
 func getObjectId(id string) primitive.ObjectID {
